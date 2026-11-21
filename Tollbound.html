@@ -1,0 +1,2129 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tollbound</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Big+Shoulders+Display:wght@600;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky ledger header over one column. Battle = three lanes (allies | clash table | enemies) above a planning tray.
+   Single committed dark world: a tarred pier at night, lit by brass coin and lantern. */
+:root{
+  color-scheme: dark;
+  --ink:#141116; --panel:#1d191f; --panel-2:#272128; --line:#3b3239; --line-2:#52454d;
+  --fg:#ece4d7; --muted:#a69a8d; --dim:#6f655f;
+  --brass:#d6a64f; --brass-hi:#f1cf86; --brass-deep:#7f5d22;
+  --blood:#cf4a3f; --tide:#4fa8a2; --ember:#e3813a; --frost:#93acd9; --focus:#d9cf72; --bind:#a98bd0; --ok:#86b86f;
+  --rot:#98b250; --frag:#e8a3a0; --weak-c:#c9a184; --ratt:#dcc47f; --hex:#bd84de;
+  --c-vesna:#d6584b; --c-oren:#7c9ac4; --c-mireille:#cbbf55; --c-tamsin:#e3813a; --c-enemy:#8e7f86;
+  --on-brass:#1b140a; --shadow:#000;
+  --f-display:"Big Shoulders Display","Oswald",Impact,"Arial Narrow",sans-serif;
+  --f-body:"Barlow","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:6px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 520px at 75% -120px,#2c1f1b 0,transparent 70%),var(--ink);background-color:var(--ink);color:var(--fg);font:15px/1.45 var(--f-body);min-height:100vh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.muted{color:var(--muted)} .sm{font-size:12px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(20,17,22,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.brand{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;letter-spacing:.09em;text-transform:uppercase;color:var(--brass)}
+.brand small{display:block;margin-top:3px;font:400 10px var(--f-mono);letter-spacing:.2em;color:var(--muted)}
+nav{display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:2px}
+nav button{background:none;border:0;padding:7px 12px;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+nav button:hover:not(:disabled){color:var(--fg)}
+nav button.on{background:var(--panel-2);color:var(--brass)}
+nav button:disabled{cursor:not-allowed;opacity:.45}
+.tokens{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.tok{font:12px var(--f-mono);padding:3px 9px;border:1px solid var(--line);border-radius:999px;display:flex;gap:6px;align-items:center;color:var(--muted)}
+.tok i{width:8px;height:8px;border-radius:50%;background:var(--hue)}
+.tok b{color:var(--fg);font-weight:600}
+
+/* buttons */
+.btn{font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;background:var(--brass);color:var(--on-brass);border:1px solid var(--brass);border-radius:4px;padding:9px 14px;cursor:pointer;transition:filter .15s,transform .1s}
+.btn:hover:not(:disabled){filter:brightness(1.1)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{background:var(--panel-2);border-color:var(--line);color:var(--dim);cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line-2)}
+.btn.ghost:disabled{background:transparent;color:var(--dim);border-color:var(--line)}
+.btn.danger{color:var(--blood);border-color:rgba(207,74,63,.5)}
+.btn.big{font-size:15px;padding:12px 22px}
+.btn.sm{font-size:11px;padding:6px 10px}
+.btn.wide{width:100%}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:12px;padding:4px}
+.linkbtn:hover{color:var(--blood)}
+
+/* type */
+.eyebrow{font:600 11px var(--f-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin:0}
+h1,.h-sec{font-family:var(--f-display);font-weight:800;text-transform:uppercase;line-height:.95;margin:6px 0 10px;text-wrap:balance}
+h1{font-size:clamp(36px,5.4vw,60px)}
+.h-sec{font-size:clamp(30px,4vw,44px)}
+.h-sub{font-family:var(--f-display);font-weight:800;text-transform:uppercase;font-size:24px;margin:0;letter-spacing:.02em}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.sec-head{padding-block:26px 16px}
+
+/* contracts */
+.intro{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;padding-block:30px 18px;align-items:start}
+@media (max-width:820px){.intro{grid-template-columns:1fr}}
+.howto{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.howto summary{cursor:pointer;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:13px;color:var(--brass)}
+.howto ol{margin:10px 0 2px;padding-left:20px;display:grid;gap:7px;color:var(--muted);font-size:14px}
+.howto b{color:var(--fg)}
+.teambar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.teambar .lbl{font:600 11px var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line-2);border-radius:999px;font-weight:600;font-size:13px}
+.chip i{width:9px;height:9px;border-radius:2px;background:var(--hue);transform:rotate(45deg)}
+.tickets{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px}
+.ticket{position:relative;display:grid;grid-template-columns:62px minmax(0,1fr);background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.ticket::before,.ticket::after{content:"";position:absolute;left:53px;width:16px;height:16px;border-radius:50%;background:var(--ink);border:1px solid var(--line)}
+.ticket::before{top:-9px}.ticket::after{bottom:-9px}
+.t-stub{border-right:2px dashed var(--line-2);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 4px;background:var(--panel-2)}
+.t-no{font:600 11px var(--f-mono);writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.22em;color:var(--brass)}
+.t-rew{text-align:center;font:10px var(--f-mono);color:var(--muted);letter-spacing:.1em}
+.t-rew b{display:block;font-family:var(--f-display);font-size:28px;color:var(--fg);line-height:1}
+.t-body{padding:14px 16px;display:grid;gap:8px;align-content:start}
+.t-body h3{font-family:var(--f-display);font-size:24px;font-weight:800;text-transform:uppercase;margin:0;line-height:1;padding-right:56px}
+.t-body p{margin:0;color:var(--muted);font-size:14px}
+.t-foes{font-size:13px!important;color:var(--fg)!important}
+.t-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap}
+.t-foot span{font:11px var(--f-mono);color:var(--muted);letter-spacing:.06em}
+.ticket.locked{opacity:.5}
+.ticket.night{background:linear-gradient(180deg,#1e1a2a,var(--panel));border-color:#3d3654}
+.stamp{position:absolute;right:12px;top:12px;font-family:var(--f-display);font-weight:800;font-size:18px;color:var(--blood);border:2px solid var(--blood);padding:1px 8px;transform:rotate(-9deg);opacity:.85;letter-spacing:.12em;border-radius:3px}
+
+/* roster */
+.roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.rcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;align-content:start}
+.rcard.on{border-color:var(--hue)}
+.rcard header{display:flex;gap:12px;align-items:center}
+.sigil{width:30px;height:30px;flex:none;border:2px solid var(--hue);transform:rotate(45deg);border-radius:3px;background:rgba(0,0,0,.25)}
+.rcard.on .sigil{background:var(--hue)}
+.rcard h3{margin:0;font-family:var(--f-display);font-size:24px;text-transform:uppercase;line-height:1}
+.role{margin:2px 0 0;color:var(--muted);font-size:13px}
+.tokbig{margin-left:auto;text-align:right;font:10px var(--f-mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.tokbig b{display:block;font-family:var(--f-display);font-size:30px;line-height:1;color:var(--brass)}
+.rcard>p{margin:0;color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0}
+.stats div{background:var(--panel-2);border-radius:4px;padding:6px 8px}
+.stats dt{font:10px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stats dd{margin:0;font:600 15px var(--f-mono);font-variant-numeric:tabular-nums}
+.weak{color:var(--blood)} .tough{color:var(--tide)}
+.mini-skills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.ractions{display:flex;gap:8px;flex-wrap:wrap}
+.danger-zone{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+/* skill card */
+.skill{display:grid;gap:3px;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px 10px;color:var(--fg);min-width:0;position:relative}
+button.skill{cursor:pointer;transition:border-color .15s,background .15s}
+button.skill:hover{border-color:var(--line-2);background:#2d262e}
+.skill.picked{border-color:var(--brass);background:#30271d;box-shadow:inset 0 0 0 1px var(--brass)}
+.sk-head{display:flex;justify-content:space-between;gap:6px;font:600 10px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.t-slash .sk-type,.cs-skill.t-slash{color:var(--blood)} .t-pierce .sk-type,.cs-skill.t-pierce{color:var(--focus)} .t-blunt .sk-type,.cs-skill.t-blunt{color:var(--frost)} .t-guard .sk-type,.cs-skill.t-guard{color:var(--tide)}
+.sk-name{display:block;font-weight:700;font-size:14px;line-height:1.2;overflow-wrap:anywhere}
+.sk-pow{display:flex;align-items:center;gap:5px;font:600 12px var(--f-mono)}
+.sk-pow b{font-family:var(--f-display);font-size:22px;line-height:1}
+.sk-pow .coin{width:11px;height:11px;border-width:1.5px;margin:0}
+.sk-pow .coins{display:inline-flex;gap:2px}
+.sk-fx{display:grid;gap:1px;font-size:12px;color:var(--muted);line-height:1.3}
+.sk-fx span{display:block}
+.sk-fx b{color:var(--fg);font-weight:600}
+.skill.big{padding:14px 16px}
+.skill.big .sk-name{font-size:20px}
+.skill.big .sk-pow b{font-size:34px}
+.skill.big .sk-pow .coin{width:16px;height:16px;border-width:2px}
+.skill.big .sk-fx{font-size:13px}
+.skill.mini{padding:6px 8px}
+.skill.mini .sk-name{font-size:13px}
+.skill.mini .sk-pow b{font-size:18px}
+
+/* coins */
+.coin{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid var(--brass);background:transparent;vertical-align:middle}
+.coin.heads{background:radial-gradient(circle at 35% 32%,var(--brass-hi),var(--brass) 55%,var(--brass-deep));border-color:var(--brass-hi);box-shadow:0 0 10px rgba(214,166,79,.45)}
+.coin.tails{background:var(--panel);border-color:var(--brass-deep)}
+.coin.broken{border-style:dashed;border-color:var(--dim);opacity:.45;transform:scale(.78)}
+.coin.flip{animation:flip .42s ease-out}
+@keyframes flip{0%{transform:rotateY(0) translateY(0)}45%{transform:rotateY(540deg) translateY(-12px)}100%{transform:rotateY(1080deg) translateY(0)}}
+
+/* battle */
+.battle{padding-block:14px 0}
+.bhead{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.bhead h2{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,3.4vw,36px);margin:2px 0 0;text-transform:uppercase;line-height:1}
+.bctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.speedctl{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.speedctl button{background:var(--panel);border:0;border-right:1px solid var(--line);padding:6px 10px;font:600 12px var(--f-mono);color:var(--muted);cursor:pointer}
+.speedctl button:last-child{border-right:0}
+.speedctl button.on{background:var(--panel-2);color:var(--brass)}
+.field{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"allies stage enemies";gap:14px;align-items:start}
+#allies{grid-area:allies} #stage{grid-area:stage} #enemies{grid-area:enemies}
+@media (max-width:920px){
+  .field{grid-template-columns:minmax(0,1fr);grid-template-areas:"enemies" "stage" "allies"}
+  .side{grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}
+  .stage{min-height:170px}
+  .stage-idle .big{font-size:42px}
+}
+.side{display:grid;gap:10px;min-width:0}
+.side-lbl{font:600 10px var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);grid-column:1/-1;margin:0}
+.unit{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:6px;position:relative;min-width:0;transition:border-color .15s,transform .15s,opacity .3s}
+.unit .uhead{display:flex;align-items:center;gap:8px}
+.unit .uname{font-weight:700;font-size:15px;line-height:1.1;min-width:0;overflow-wrap:anywhere}
+.unit .glyph{width:10px;height:10px;flex:none;background:var(--hue);transform:rotate(45deg);border-radius:2px}
+.dice{margin-left:auto;display:flex;gap:4px}
+.die{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 4px;border-radius:4px;background:var(--fg);color:var(--ink);font:700 13px var(--f-mono)}
+.die.done{background:var(--panel-2);color:var(--dim)}
+.hp{position:relative;height:9px;background:var(--panel-2);border-radius:2px;overflow:visible}
+.hp .fill{position:absolute;inset:0 auto 0 0;background:var(--hue);border-radius:2px;transition:width .35s ease}
+.hp .shieldfill{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(45deg,var(--tide) 0 3px,transparent 3px 6px);opacity:.8;border-radius:2px}
+.hp .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--brass);transform:translateX(-1px)}
+.hp .tick.spent{background:var(--dim)}
+.ustats{display:flex;flex-wrap:wrap;gap:4px 10px;font:12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.ustats b{color:var(--fg);font-weight:600}
+.sp-pos{color:var(--tide)!important} .sp-neg{color:var(--blood)!important}
+.statuses{display:flex;flex-wrap:wrap;gap:4px}
+.st{font:600 11px var(--f-mono);padding:1px 6px;border-radius:3px;border:1px solid currentColor;cursor:help}
+.st-bleed{color:var(--blood)} .st-burn{color:var(--ember)} .st-shatter{color:var(--frost)} .st-focus{color:var(--focus)} .st-might{color:var(--brass)} .st-haste{color:var(--ok)} .st-bind{color:var(--bind)} .st-shield{color:var(--tide)}
+.st-rot{color:var(--rot)} .st-fragile{color:var(--frag)} .st-weaken{color:var(--weak-c)} .st-rattle{color:var(--ratt)} .st-jinx{color:var(--hex)}
+.badge{position:absolute;top:-9px;right:10px;font:700 10px var(--f-mono);letter-spacing:.14em;padding:2px 6px;border-radius:3px;background:var(--frost);color:var(--ink)}
+.unit.stag{border-color:var(--frost)}
+.unit.dead{opacity:.32;filter:grayscale(1)}
+.unit.dead .badge{background:var(--dim)}
+.unit.targetable{cursor:pointer;border-color:var(--line-2)}
+.unit.targetable:hover{border-color:var(--brass);transform:translateY(-2px)}
+.unit.aimed{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass)}
+.res{display:flex;gap:8px;font:11px var(--f-mono);color:var(--muted)}
+.intents{display:grid;gap:4px;border-top:1px solid var(--line);padding-top:6px}
+.intent{display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.25;min-width:0}
+.intent .die{min-width:20px;height:20px;font-size:11px}
+.intent .what{min-width:0;overflow-wrap:anywhere}
+.intent .rng{font:11px var(--f-mono);color:var(--muted)}
+.tag{font:700 10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;border-radius:3px;white-space:nowrap}
+.tag.tg-open{background:rgba(207,74,63,.18);color:var(--blood)}
+.tag.tg-clash{background:rgba(214,166,79,.18);color:var(--brass)}
+.tag.tg-guard{background:rgba(79,168,162,.18);color:var(--tide)}
+.aimers{display:flex;flex-wrap:wrap;gap:4px;font:11px var(--f-mono);color:var(--muted)}
+.aimers span{color:var(--hue)}
+
+.stage{min-height:250px;background:radial-gradient(circle at 50% 40%,#2a2226,var(--panel) 75%);border:1px solid var(--line);border-radius:var(--r);display:grid;place-items:center;padding:18px 12px;overflow:hidden}
+.stage-idle{text-align:center;display:grid;gap:6px;justify-items:center}
+.stage-idle .big{font-family:var(--f-display);font-weight:800;font-size:56px;line-height:.9;text-transform:uppercase}
+.stage-idle p{margin:0;color:var(--muted);font-size:14px;max-width:34ch}
+.clash{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;width:100%;align-items:center}
+.cs{text-align:center;display:grid;gap:6px;justify-items:center;min-width:0;transition:opacity .2s}
+.cs-name{font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.cs-skill{font:600 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;overflow-wrap:anywhere}
+.cs-coins{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:22px;perspective:200px}
+.cs-total{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,6vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.cs-total.bump{animation:bump .3s ease-out}
+.cs-total.dmg{color:var(--blood)}
+.cs.won .cs-total{color:var(--brass)}
+.cs.lost{opacity:.55}
+.cs-note{font:11px var(--f-mono);color:var(--muted);min-height:15px}
+.cvs{font-family:var(--f-display);font-weight:800;font-size:18px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;writing-mode:vertical-rl;transform:rotate(180deg)}
+@keyframes bump{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+.planner{margin-top:14px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:8px;align-content:start}
+.plan.active{border-color:var(--brass)}
+.phead{display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:pointer;text-align:left;width:100%}
+.phead .uname{font-weight:700}
+.phead .glyph{width:10px;height:10px;background:var(--hue);transform:rotate(45deg);border-radius:2px}
+.phead .meta{margin-left:auto;font:12px var(--f-mono);color:var(--muted)}
+.hand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media (max-width:420px){.hand{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pline{font-size:13px;color:var(--muted);line-height:1.35}
+.pline b{color:var(--fg)}
+.odds{font-family:var(--f-mono);font-weight:600}
+.odds.good{color:var(--ok)} .odds.bad{color:var(--blood)}
+.warn{color:var(--brass)}
+.plan.down{opacity:.5}
+.pfoot{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-top:12px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.hint{color:var(--muted);font-size:14px;max-width:70ch}
+.hint b{color:var(--brass)}
+.resolving{padding:16px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line-2);border-radius:var(--r);font:13px var(--f-mono);letter-spacing:.08em;text-transform:uppercase}
+.result{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:12px;justify-items:start}
+.result.win{border-color:var(--brass)}
+.result h3{font-family:var(--f-display);font-weight:800;font-size:52px;text-transform:uppercase;line-height:.9;margin:0}
+.result.win h3{color:var(--brass)} .result.loss h3{color:var(--blood)}
+.result p{margin:0;color:var(--muted)}
+.rewards{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.rewards li{display:grid;grid-template-columns:auto auto;gap:0 10px;align-items:center;background:var(--panel-2);border-radius:5px;padding:8px 14px}
+.rewards li i{grid-row:span 2;width:12px;height:12px;background:var(--hue);transform:rotate(45deg);border-radius:2px}
+.rewards li b{font-family:var(--f-display);font-size:28px;color:var(--brass);line-height:1}
+.rewards li span{font:11px var(--f-mono);color:var(--muted);grid-column:2}
+.log{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.log summary{cursor:pointer;font:600 11px var(--f-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.log ol{list-style:none;margin:10px 0 0;padding:0;max-height:240px;overflow:auto;display:grid;gap:2px;font:12px var(--f-mono);color:var(--muted)}
+.log li.turn{color:var(--brass);margin-top:6px}
+.log li.dmg{color:var(--fg)} .log li.stag{color:var(--frost)} .log li.death{color:var(--blood)}
+
+/* forge */
+.fchars{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.fchar{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:8px 14px;cursor:pointer;font-weight:600}
+.fchar i{width:10px;height:10px;background:var(--hue);transform:rotate(45deg);border-radius:2px}
+.fchar b{font:600 13px var(--f-mono);color:var(--brass)}
+.fchar.on{border-color:var(--hue);background:var(--panel-2)}
+.forge-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.forge-grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.forge-form{display:grid;gap:18px}
+.fl{display:flex;justify-content:space-between;align-items:baseline;font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fl output{font:700 18px var(--f-mono);color:var(--fg);letter-spacing:0}
+.inline{display:flex;gap:8px}
+input[type=text]{flex:1;min-width:0;background:var(--panel-2);border:1px solid var(--line-2);border-radius:4px;color:var(--fg);padding:9px 11px;font:600 15px var(--f-body)}
+input[type=text]::placeholder{color:var(--dim)}
+input[type=range]{width:100%;accent-color:var(--brass)}
+.range-scale{display:flex;justify-content:space-between;font:10px var(--f-mono);color:var(--dim)}
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;border:0;padding:0;margin:0}
+.seg legend{padding:0}
+.segopt{position:relative}
+.segopt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.segopt span{display:block;text-align:center;padding:9px 4px;border:1px solid var(--line-2);border-radius:4px;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:var(--panel-2)}
+.segopt input:checked+span{border-color:currentColor;background:#2f2830}
+.segopt input:focus-visible+span{outline:2px solid var(--brass);outline-offset:2px}
+.segopt.t-slash{color:var(--blood)} .segopt.t-pierce{color:var(--focus)} .segopt.t-blunt{color:var(--frost)} .segopt.t-guard{color:var(--tide)}
+.type-help{margin:6px 0 0;font-size:13px;color:var(--muted)}
+.sliders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:560px){.sliders{grid-template-columns:minmax(0,1fr)}}
+.fx-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.fx-head h4{margin:0;font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#fxList{display:grid;gap:8px;margin-bottom:10px}
+.fx-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;gap:8px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:8px}
+@media (max-width:520px){.fx-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.fx-row select{width:100%;min-width:0;background:var(--panel);color:var(--fg);border:1px solid var(--line-2);border-radius:4px;padding:7px;font:600 13px var(--f-body)}
+.fx-desc{grid-column:1/-1;margin:0;font-size:12px;color:var(--muted)}
+.stepper{display:flex;align-items:center;border:1px solid var(--line-2);border-radius:4px;overflow:hidden}
+.stepper button{background:var(--panel);border:0;width:28px;height:30px;cursor:pointer;font-weight:700}
+.stepper button:disabled{color:var(--dim);cursor:not-allowed}
+.stepper span{min-width:26px;text-align:center;font:700 14px var(--f-mono)}
+.forge-preview{display:grid;gap:14px;position:sticky;top:84px}
+@media (max-width:860px){.forge-preview{position:static}}
+.pv-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
+.pv-stats div{background:var(--panel-2);border-radius:4px;padding:7px 9px}
+.pv-stats dt{font:10px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pv-stats dd{margin:0;font:700 17px var(--f-mono)}
+.cost h4{margin:0 0 6px;font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.cost ul{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:13px}
+.cost li,.cost-total,.cost-bal{display:flex;justify-content:space-between;gap:10px}
+.cost li b{font:600 13px var(--f-mono);font-variant-numeric:tabular-nums}
+.cost li.neg b{color:var(--ok)}
+.cost-total{border-top:1px solid var(--line);margin-top:8px;padding-top:8px;font-weight:700}
+.cost-total b{font:700 22px var(--f-display);color:var(--brass)}
+.cost-bal{font-size:13px;color:var(--muted)} .cost-bal b{font-family:var(--f-mono);color:var(--fg)}
+.note{margin:0;font-size:13px;color:var(--brass)}
+.library{margin-top:26px}
+.lib-head{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.pill{font:600 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line-2);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.lib{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,215px),1fr));gap:10px}
+.lib-item{display:grid;gap:8px;align-content:start;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:8px}
+.lib-item.eq{border-color:var(--brass-deep)}
+.lib-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.eqmark{font:700 10px var(--f-mono);letter-spacing:.12em;color:var(--brass);text-transform:uppercase}
+
+/* fx overlay */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.pop{position:absolute;transform:translateX(-50%);font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--fg);text-shadow:0 2px 0 var(--shadow),0 0 8px var(--shadow);animation:pop 1.15s ease-out forwards;white-space:nowrap}
+.pop.dmg{color:var(--blood)} .pop.crit{color:var(--brass-hi);font-size:28px} .pop.stag{color:var(--frost);font-size:26px;letter-spacing:.08em}
+.pop.win{color:var(--brass)} .pop.shield{color:var(--tide)} .pop.heal{color:var(--ok)}
+.pop.st-bleed{color:var(--blood);font-size:17px} .pop.st-burn{color:var(--ember);font-size:17px} .pop.st-shatter{color:var(--frost);font-size:17px} .pop.st-focus{color:var(--focus);font-size:17px} .pop.st-bind{color:var(--bind);font-size:17px} .pop.st-might,.pop.st-haste,.pop.sp{color:var(--tide);font-size:17px}
+.pop.st-rot,.pop.st-fragile,.pop.st-weaken,.pop.st-rattle,.pop.st-jinx,.pop.st-dread,.pop.st-recoil{font-size:17px}
+.pop.st-rot{color:var(--rot)} .pop.st-fragile{color:var(--frag)} .pop.st-weaken{color:var(--weak-c)} .pop.st-rattle{color:var(--ratt)} .pop.st-jinx,.pop.st-dread{color:var(--hex)} .pop.st-recoil{color:var(--blood)}
+.fx-row.drawback{border-color:rgba(207,74,63,.35)}
+.fx-cost{display:block;margin-top:3px;font:11px var(--f-mono);color:var(--dim)}
+.fx-row select optgroup{color:var(--muted);font-style:normal}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,8px) scale(.8)}14%{opacity:1;transform:translate(-50%,0) scale(1.12)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-42px) scale(1)}}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--fg);color:var(--ink);padding:10px 16px;border-radius:5px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:60;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ===== v3: Limbus-style statuses, scene, sprites, wardrobe ===== */
+:root{--rup:#5fc7c0;--sink:#7896e6;--poise:#8fd0f0;--chg:#e8d44d;--para:#c48be3;--bind:#d09a6a}
+.st-burn{color:var(--ember)} .st-bleed{color:var(--blood)} .st-tremor{color:var(--ratt)} .st-rupture{color:var(--rup)} .st-sinking{color:var(--sink)}
+.st-poise{color:var(--poise)} .st-charge{color:var(--chg)} .st-paralysis{color:var(--para)} .st-bind{color:var(--bind)} .st-haste{color:var(--ok)}
+.st-fragile{color:var(--frag)} .st-protection{color:var(--tide)} .st-powerup{color:var(--brass)} .st-powerdown{color:var(--weak-c)} .st-shield{color:var(--tide)} .st-recoil{color:var(--blood)}
+.pop[class*="st-"],.pop.cs{font-size:17px}
+.intro-side{display:grid;gap:12px;align-content:start}
+.glossary dl{display:grid;gap:6px;margin:10px 0 6px}
+.glossary dl div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px;font-size:13px}
+.glossary dt{font:600 12px var(--f-mono)} .glossary dd{margin:0;color:var(--muted)}
+@media (max-width:480px){.glossary dl div{grid-template-columns:minmax(0,1fr);gap:0}}
+
+/* scene */
+.scene{position:relative;height:440px;margin-bottom:14px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#17121c;--k:1;user-select:none}
+@media (max-width:900px){.scene{height:380px;--k:.8}}
+@media (max-width:600px){.scene{height:300px;--k:.55}}
+.board #allies,.board #enemies{grid-area:auto}
+.actor .a-tag,.actor .a-hp,.actor .a-st{position:relative;z-index:2}
+@media (max-width:600px){.a-tag b{display:none}.a-st{max-width:70px}}
+.scene-bg,.actors{position:absolute;inset:0}
+.scene-bg svg{width:100%;height:100%;display:block}
+.actor{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;transition:left .38s cubic-bezier(.3,.7,.3,1),bottom .38s cubic-bezier(.3,.7,.3,1),opacity .4s}
+.actor .doll{width:calc(114px * var(--s) * var(--k));height:calc(158px * var(--s) * var(--k))}
+.a-tag{display:flex;gap:4px;align-items:center;font:700 11px var(--f-body);color:var(--fg);text-shadow:0 1px 2px var(--shadow);white-space:nowrap}
+.a-dice{display:flex;gap:2px}
+.a-tag .die{min-width:17px;height:17px;font-size:10px;padding:0 3px}
+.a-hp{position:relative;width:calc(60px * var(--k) + 12px);height:5px;background:rgba(0,0,0,.65);border-radius:2px;overflow:hidden}
+.a-hp i{position:absolute;inset:0 auto 0 0}
+.a-hp .hpf{background:var(--blood)} .actor.ally .a-hp .hpf{background:var(--ok)}
+.a-hp .sh{background:var(--tide);z-index:1;opacity:.8}
+.a-st{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:130px;min-height:12px}
+.ms{font:700 9px var(--f-mono);background:rgba(0,0,0,.65);padding:0 3px;border-radius:2px;line-height:12px}
+.actor.enemy .doll{transform:scaleX(-1)}
+.actor.dead{opacity:.55} .actor.dead .a-st,.actor.dead .a-hp,.actor.dead .a-dice{visibility:hidden}
+.actor.targetable{cursor:pointer} .actor.targetable .doll{filter:drop-shadow(0 0 6px rgba(214,166,79,.75))}
+.actor.targetable:hover .a-tag b,.actor.aimed .a-tag b{color:var(--brass)}
+.actor.stag .a-tag b{color:var(--frost)}
+.hud{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:min(520px,94%);background:rgba(16,12,18,.84);border:1px solid var(--line);border-radius:6px;padding:6px 10px;z-index:90;pointer-events:none}
+.hud .cs-total{font-size:clamp(24px,3.6vw,32px)}
+.hud .clash{gap:4px}.hud .cs{gap:2px}.hud .cs-coins{min-height:16px}
+.hud .coin{width:15px;height:15px}
+.hud .cvs{font-size:13px}
+.hud .cs-name{font-size:12px}.hud .cs-skill{font-size:11px}
+.hud-idle{display:flex;gap:10px;align-items:baseline;justify-content:center;flex-wrap:wrap}
+.hud-idle b{font-family:var(--f-display);font-size:22px;text-transform:uppercase}
+.hud-idle span:last-child{color:var(--muted);font-size:13px}
+.board{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:760px){.board{grid-template-columns:minmax(0,1fr)}.board .enemies{order:-1}}
+
+/* paper dolls */
+.doll svg{width:100%;height:100%;display:block;overflow:visible}
+.doll .body,.doll .armF,.doll .armB{transform-box:view-box;transition:transform .18s ease}
+.doll .body{transform-origin:60px 190px}
+.doll .armF{transform-origin:72px 76px}
+.doll .armB{transform-origin:48px 76px}
+.doll.idle .body{animation:breathe 2.8s ease-in-out infinite}
+@keyframes breathe{50%{transform:translateY(1.4px)}}
+.doll.pose-ready .armF{transform:rotate(-50deg)} .doll.pose-ready .body{transform:rotate(4deg)}
+.doll.pose-attack .armF{animation:swing .36s ease-out forwards}
+.doll.pose-attack .body{transform:rotate(7deg) translateX(5px)}
+@keyframes swing{0%{transform:rotate(-165deg)}55%{transform:rotate(18deg)}100%{transform:rotate(-15deg)}}
+.doll.pose-hit .body{transform:rotate(-11deg) translateX(-6px)}
+.doll.pose-hit .armF{transform:rotate(22deg)}
+.doll.pose-guard .armF{transform:rotate(-85deg)} .doll.pose-guard .armB{transform:rotate(-75deg)}
+.doll.pose-stag .body{transform:rotate(-7deg) translateY(5px)}
+.doll.pose-down .body{transform:rotate(-84deg) translate(-6px,8px)}
+
+/* forge additions */
+.subtabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.subtabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.subtabs button:hover{color:var(--fg)}
+.subtabs button.on{color:var(--brass);border-bottom-color:var(--brass)}
+.sel{width:100%;background:var(--panel-2);color:var(--fg);border:1px solid var(--line-2);border-radius:4px;padding:8px;font:600 13px var(--f-body)}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:560px){.two-col{grid-template-columns:minmax(0,1fr)}}
+.seg.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipbtn{background:var(--panel-2);border:1px solid var(--line-2);border-radius:4px;padding:6px 10px;font-weight:600;font-size:12px;cursor:pointer;color:var(--fg)}
+.chipbtn:hover{border-color:var(--muted)}
+.chipbtn.on{border-color:var(--brass);color:var(--brass);background:#30271d}
+.chipbtn.glyph{font-size:16px;width:36px;padding:4px 0}
+.swatches{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid var(--line-2);cursor:pointer;padding:0}
+.sw.on{border-color:var(--fg);box-shadow:0 0 0 2px var(--brass)}
+.cpick{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin-left:4px}
+input[type=color]{width:34px;height:26px;border:1px solid var(--line-2);border-radius:4px;background:var(--panel-2);padding:1px;cursor:pointer}
+.cs-card{display:flex;gap:10px;align-items:center}
+.cs-card>div{display:grid}
+.cs-badge{width:40px;height:40px;flex:none;display:grid;place-items:center;font-size:20px;color:var(--cc);border:2px solid var(--cc);border-radius:6px;background:rgba(0,0,0,.25)}
+.cs-desc{margin:0;color:var(--muted);font-size:14px}
+.pas-card{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:10px 12px}
+.pas-card b{color:var(--brass)} .pas-card p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.stepper.wide{width:max-content}
+.pas-list{display:flex;flex-wrap:wrap;gap:6px}
+.pas-chip,.pas-mini{font:600 11px var(--f-mono);color:var(--brass);border:1px solid var(--brass-deep);border-radius:3px;padding:1px 6px}
+.portrait{width:54px;height:60px;flex:none;border-radius:6px;background:radial-gradient(circle at 50% 30%,#3a2a30,#1a1418);border:1px solid var(--hue);overflow:hidden}
+.portrait svg{width:100%;height:100%}
+
+/* wardrobe */
+.wd-grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.wd-grid{grid-template-columns:minmax(0,1fr)}}
+.wd-preview{display:grid;gap:12px;position:sticky;top:84px}
+@media (max-width:820px){.wd-preview{position:static}}
+.wd-stage{height:400px;border-radius:6px;background:radial-gradient(circle at 50% 30%,#3a2a30,#1a1418 70%);display:grid;place-items:end center;padding-bottom:12px;overflow:hidden;border:1px solid var(--line)}
+.wd-stage .doll{width:200px;height:333px}
+@media (max-width:820px){.wd-stage{height:320px}.wd-stage .doll{width:168px;height:280px}}
+.wd-opts{display:grid;gap:18px;align-content:start}
+.wd-field{display:grid;gap:8px}
+.wd-field h4{margin:0;font:600 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.opt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px}
+.opt{background:var(--panel-2);border:1px solid var(--line);border-radius:5px;padding:4px 4px 6px;cursor:pointer;display:grid;gap:2px;justify-items:center;font-size:11px;color:var(--muted)}
+.opt svg{width:68px;height:68px}
+.opt:hover{border-color:var(--line-2)}
+.opt.on{border-color:var(--brass);color:var(--fg);background:#30271d}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">Tollbound<small>Pier District · Contract Board</small></div>
+    <nav id="nav" aria-label="Sections">
+      <button data-act="go" data-v="contracts">Contracts</button>
+      <button data-act="go" data-v="roster">Roster</button>
+      <button data-act="go" data-v="forge">Skill Forge</button>
+      <button data-act="go" data-v="wardrobe">Wardrobe</button>
+    </nav>
+    <div class="tokens" id="tokens" aria-label="Character Tokens"></div>
+  </div>
+</header>
+<main id="view" class="wrap"></main>
+<div id="fx" aria-hidden="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ---------- utilities ---------- */
+const $=(s,r=document)=>r.querySelector(s);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const sgn=n=>n>=0?`+${n}`:`${n}`;
+const r1=n=>Math.round(n*10)/10;
+const newId=p=>p+Date.now().toString(36)+rnd(100,999);
+const SPEED={mult:1,skip:false};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms/(SPEED.mult*(SPEED.skip?30:1))));
+
+/* ---------- statuses ---------- */
+const TYPES={slash:'Slash',pierce:'Pierce',blunt:'Blunt',guard:'Guard'};
+const TYPE_HELP={
+  slash:'Deals damage. Check each enemy’s resistances: ×1.2 or higher means they are weak to it.',
+  pierce:'Deals damage. Check each enemy’s resistances: ×1.2 or higher means they are weak to it.',
+  blunt:'Deals damage. Check each enemy’s resistances: ×1.2 or higher means they are weak to it.',
+  guard:'Rolls once before any attack lands and gives Shield equal to the roll. Guard skills never clash, can’t afflict enemies, and only take on-use triggers.'
+};
+// Potency + Count statuses (pc) use two numbers: Potency sets the strength, Count is how many more times it can trigger.
+const STATUS={
+  burn:      {label:'Burn',      abbr:'BRN', kind:'debuff',pc:true, info:'At turn end, take damage equal to Potency, then Count −1.'},
+  bleed:     {label:'Bleed',     abbr:'BLD', kind:'debuff',pc:true, info:'Each time the bearer attacks with a coin, they take damage equal to Potency, then Count −1.'},
+  tremor:    {label:'Tremor',    abbr:'TRM', kind:'debuff',pc:true, info:'Count −1 at turn end. A Tremor Burst raises the bearer’s next stagger threshold by Potency (so they stagger sooner), then Count −1.'},
+  rupture:   {label:'Rupture',   abbr:'RPT', kind:'debuff',pc:true, info:'When hit by a coin, take extra damage equal to Potency, then Count −1.'},
+  sinking:   {label:'Sinking',   abbr:'SNK', kind:'debuff',pc:true, info:'When hit by a coin, lose Sanity equal to Potency (or take that much damage if Sanity is already at −45), then Count −1.'},
+  poise:     {label:'Poise',     abbr:'POI', kind:'buff',  pc:true, info:'Each coin that hits has a 5% crit chance per Potency. Crits deal ×1.2 damage and spend 1 Count.'},
+  charge:    {label:'Charge',    abbr:'CHG', kind:'buff',  max:20,  info:'Stored energy, up to 20. Skills with a “Spend 3 Charge” trigger use it up for bonus effects.'},
+  paralysis: {label:'Paralysis', abbr:'PAR', kind:'debuff',max:5,timed:true,info:'The bearer’s next N coins have their coin power fixed to 0. Wears off at the end of next turn.'},
+  bind:      {label:'Bind',      abbr:'BND', kind:'debuff',max:5,   info:'Speed −N on the next speed roll.'},
+  haste:     {label:'Haste',     abbr:'HST', kind:'buff',  max:5,   info:'Speed +N on the next speed roll.'},
+  fragile:   {label:'Fragile',   abbr:'FRG', kind:'debuff',max:10,timed:true,info:'Take 10% more damage from hits per stack. Wears off at the end of next turn.'},
+  protection:{label:'Protection',abbr:'PRT', kind:'buff',  max:10,timed:true,info:'Take 10% less damage from hits per stack. Wears off at the end of next turn.'},
+  powerup:   {label:'Attack Power Up',  abbr:'ATK↑',kind:'buff',  max:5,timed:true,info:'Skills gain +N base power. Wears off at the end of next turn.'},
+  powerdown: {label:'Attack Power Down',abbr:'ATK↓',kind:'debuff',max:5,timed:true,info:'Skills lose N base power. Wears off at the end of next turn.'},
+};
+const STATUS_ORDER=Object.keys(STATUS);
+const PC_KEYS=STATUS_ORDER.filter(k=>STATUS[k].pc);
+
+/* ---------- skill effects ---------- */
+const EFFECTS={
+  burn:     {label:'Burn',            kind:'debuff',on:'target',st:'burn',mode:'p',cost:1.4,max:5,txt:n=>`inflict ${n} Burn`},
+  burnc:    {label:'Burn Count',      kind:'debuff',on:'target',st:'burn',mode:'c',cost:1.6,max:5,txt:n=>`inflict +${n} Burn Count`},
+  bleed:    {label:'Bleed',           kind:'debuff',on:'target',st:'bleed',mode:'p',cost:1.4,max:5,txt:n=>`inflict ${n} Bleed`},
+  bleedc:   {label:'Bleed Count',     kind:'debuff',on:'target',st:'bleed',mode:'c',cost:1.6,max:5,txt:n=>`inflict +${n} Bleed Count`},
+  tremor:   {label:'Tremor',          kind:'debuff',on:'target',st:'tremor',mode:'p',cost:1,max:5,txt:n=>`inflict ${n} Tremor`},
+  tremorc:  {label:'Tremor Count',    kind:'debuff',on:'target',st:'tremor',mode:'c',cost:1,max:5,txt:n=>`inflict +${n} Tremor Count`},
+  burst:    {label:'Tremor Burst',    kind:'debuff',on:'target',cost:2.2,max:2,txt:n=>n>1?`trigger Tremor Burst ×${n}`:'trigger Tremor Burst'},
+  rupture:  {label:'Rupture',         kind:'debuff',on:'target',st:'rupture',mode:'p',cost:1.5,max:5,txt:n=>`inflict ${n} Rupture`},
+  rupturec: {label:'Rupture Count',   kind:'debuff',on:'target',st:'rupture',mode:'c',cost:1.7,max:5,txt:n=>`inflict +${n} Rupture Count`},
+  sinking:  {label:'Sinking',         kind:'debuff',on:'target',st:'sinking',mode:'p',cost:1.1,max:5,txt:n=>`inflict ${n} Sinking`},
+  sinkingc: {label:'Sinking Count',   kind:'debuff',on:'target',st:'sinking',mode:'c',cost:1.3,max:5,txt:n=>`inflict +${n} Sinking Count`},
+  paralysis:{label:'Paralysis',       kind:'debuff',on:'target',st:'paralysis',cost:1.8,max:3,txt:n=>`inflict ${n} Paralysis`},
+  bind:     {label:'Bind',            kind:'debuff',on:'target',st:'bind',cost:2,max:3,txt:n=>`inflict ${n} Bind`},
+  fragile:  {label:'Fragile',         kind:'debuff',on:'target',st:'fragile',cost:1.6,max:5,txt:n=>`inflict ${n} Fragile`},
+  powerdown:{label:'Attack Power Down',kind:'debuff',on:'target',st:'powerdown',cost:2,max:3,txt:n=>`inflict ${n} Attack Power Down`},
+  poise:    {label:'Poise',           kind:'buff',on:'self',st:'poise',mode:'p',cost:1,max:5,txt:n=>`gain ${n} Poise`},
+  poisec:   {label:'Poise Count',     kind:'buff',on:'self',st:'poise',mode:'c',cost:1,max:5,txt:n=>`gain +${n} Poise Count`},
+  charge:   {label:'Charge',          kind:'buff',on:'self',st:'charge',cost:.6,max:5,txt:n=>`gain ${n} Charge`},
+  haste:    {label:'Haste',           kind:'buff',on:'self',st:'haste',cost:1.5,max:3,txt:n=>`gain ${n} Haste`},
+  protection:{label:'Protection',     kind:'buff',on:'self',st:'protection',cost:1.5,max:5,txt:n=>`gain ${n} Protection`},
+  powerup:  {label:'Attack Power Up', kind:'buff',on:'self',st:'powerup',cost:2,max:3,txt:n=>`gain ${n} Attack Power Up`},
+  shield:   {label:'Shield',          kind:'buff',on:'self',cost:1.2,max:5,txt:n=>`gain ${n*3} Shield`},
+  heal:     {label:'Mend',            kind:'buff',on:'self',cost:1.6,max:5,txt:n=>`heal ${n*2} HP`},
+  sanity:   {label:'Composure',       kind:'buff',on:'self',cost:1,max:5,txt:n=>`recover ${n*2} Sanity`},
+  rally:    {label:'Rally',           kind:'buff',on:'team',cost:1.6,max:5,txt:n=>`every ally recovers ${n*2} Sanity`},
+  recoil:   {label:'Recoil',          kind:'drawback',on:'self',cost:-1.2,max:5,txt:n=>`user takes ${n*2} damage`},
+  strain:   {label:'Strain',          kind:'drawback',on:'self',cost:-.8,max:5,txt:n=>`user loses ${n*3} Sanity`},
+  sluggish: {label:'Sluggish',        kind:'drawback',on:'self',st:'bind',cost:-1.5,max:3,txt:n=>`user gains ${n} Bind`},
+  exposed:  {label:'Exposed',         kind:'drawback',on:'self',st:'fragile',cost:-1.2,max:5,txt:n=>`user gains ${n} Fragile`},
+};
+const EFFECT_GROUPS=[['debuff','Afflict the target'],['buff','Empower yourself'],['drawback','Drawback · refunds tokens']];
+const TRIGGERS={
+  use:       {label:'On Use',               group:'Always',           pre:true, mult:()=>1,   help:'once, every time the skill is used'},
+  lowhp:     {label:'Use: Below Half HP',   group:'On use, only if…', pre:true, mult:()=>.5,  help:'once on use, only while the user is under 50% HP'},
+  highsp:    {label:'Use: Sanity 15+',      group:'On use, only if…', pre:true, mult:()=>.6,  help:'once on use, only while the user has 15 or more Sanity'},
+  spend:     {label:'Use: Spend 3 Charge',  group:'On use, only if…', pre:true, mult:()=>.5,  help:'once on use, only if the user has 3+ Charge, which gets spent'},
+  faster:    {label:'Use: Faster Than Target',group:'On use, only if…',         mult:()=>.6,  help:'once on use, only if the user’s speed beats the target’s fastest die'},
+  unopposed: {label:'Use: Unopposed',       group:'On use, only if…',           mult:()=>.55, help:'once on use, only when the skill is not clashing'},
+  win:       {label:'Clash Win',            group:'Clash result',               mult:()=>.7,  help:'once, if this skill wins its clash'},
+  lose:      {label:'Clash Lose',           group:'Clash result',               mult:()=>.45, help:'once, if this skill loses its clash'},
+  first:     {label:'First Hit',            group:'Once per strike',            mult:()=>.75, help:'once, when the first coin lands'},
+  final:     {label:'Final Hit',            group:'Once per strike',            mult:()=>.6,  help:'once, if the last coin lands'},
+  kill:      {label:'On Kill',              group:'Once per strike',selfOnly:true,mult:()=>.4,help:'once, if this skill takes the target down'},
+  hit:       {label:'On Hit',               group:'Per coin',per:true,          mult:c=>.35*c,help:'on every coin that lands'},
+  heads:     {label:'On Heads',             group:'Per coin',per:true,          mult:c=>.3*c, help:'on every coin that lands heads'},
+  tails:     {label:'On Tails',             group:'Per coin',per:true,          mult:c=>.25*c,help:'on every coin that lands tails'},
+  crit:      {label:'On Crit',              group:'Per coin',per:true,          mult:c=>.25*c,help:'on every coin that crits (crits come from Poise)'},
+  afflicted: {label:'Hit Afflicted Target', group:'Per coin',per:true,          mult:c=>.35*c,help:'on every coin that lands on a target already carrying a negative status'},
+  stagtarget:{label:'Hit Staggered Target', group:'Per coin',per:true,          mult:c=>.25*c,help:'on every coin that lands on a staggered target'},
+};
+const TRIG_GROUPS=['Always','On use, only if…','Clash result','Once per strike','Per coin'];
+const DRAWBACK_INFO={recoil:'Recoil damage ignores Shield.',strain:'Lower Sanity means a lower heads chance.'};
+
+/* ---------- unique statuses (player-made) ---------- */
+const CS_TRIG={
+  turnEnd:  {label:'At turn end',f:1},
+  turnStart:{label:'At turn start',f:1},
+  hit:      {label:'When the bearer is hit by a coin',f:1.2},
+  attack:   {label:'When the bearer attacks with a coin',f:1.2},
+  win:      {label:'When the bearer wins a clash',f:.55},
+  lose:     {label:'When the bearer loses a clash',f:.45},
+  while:    {label:'Constantly, while held',f:1},
+};
+const CS_EFF={
+  dmg:     {label:'Lose HP',          pol:'debuff',v:1,  txt:(a,d)=>`the bearer loses ${a} HP`},
+  stagger: {label:'Stagger damage',   pol:'debuff',v:.5, txt:(a,d)=>`the bearer’s stagger threshold rises by ${a} HP`},
+  sp:      {label:'Sanity',           pol:'both',  v:.55,txt:(a,d)=>d.pol==='buff'?`the bearer recovers ${a} Sanity`:`the bearer loses ${a} Sanity`},
+  heal:    {label:'Recover HP',       pol:'buff',  v:.9, txt:(a,d)=>`the bearer recovers ${a} HP`},
+  shield:  {label:'Gain Shield',      pol:'buff',  v:.5, txt:(a,d)=>`the bearer gains ${a} Shield`},
+  power:   {label:'Base power',       pol:'both',  v:1.1,only:'while',txt:(a,d)=>`skills get ${d.pol==='buff'?'+':'−'}1 base power per 2 × strength stacks`},
+  dmgTaken:{label:'Damage taken',     pol:'both',  v:.9, only:'while',txt:(a,d)=>`hits taken deal ${d.pol==='buff'?'less':'more'} damage (${5*d.str}% per stack)`},
+  heads:   {label:'Heads chance',     pol:'both',  v:.7, only:'while',txt:(a,d)=>`heads chance ${d.pol==='buff'?'+':'−'}${3*d.str}% per stack`},
+};
+const CS_DECAY={
+  one:   {label:'Lose 1 stack each time it triggers',f:1,  trig:true},
+  half:  {label:'Halve stacks each time it triggers',f:.75,trig:true},
+  endOne:{label:'Lose 1 stack at turn end',f:1.15},
+  endAll:{label:'All stacks clear at turn end',f:.45},
+  none:  {label:'Never fades during the fight',f:1.7},
+};
+const CS_GLYPHS=['◆','◇','✦','✶','✚','✖','◉','▲','▼','❖','☾','✹','⬢','♠','♣','♥'];
+const CS_COLORS=['#9fd1a8','#e07070','#e3a14a','#e8d44d','#7fc4e8','#8f8fe8','#c48be3','#e88fbf','#d9d0c0','#5fc7c0'];
+function csPerStack(d){const E=CS_EFF[d.eff];return Math.max(.4,r1(E.v*d.str*CS_TRIG[d.trig].f*CS_DECAY[d.decay].f))}
+function csFee(d){return Math.round(5+csPerStack(d)*5)}
+function csDescribe(d){
+  const E=CS_EFF[d.eff];
+  if(d.trig==='while')return `While held, ${E.txt(0,d)}. ${CS_DECAY[d.decay].label}. Max 10 stacks.`;
+  const a=d.eff==='stagger'?`${d.str*2} × stacks`:`${d.str} × stacks`;
+  return `${CS_TRIG[d.trig].label}, ${E.txt(a,d)}. ${CS_DECAY[d.decay].label}. Max 10 stacks.`;
+}
+function effDef(key){
+  if(EFFECTS[key])return EFFECTS[key];
+  if(typeof key==='string'&&key.startsWith('cs_')){
+    const d=save.statuses[key.slice(3)];if(!d)return null;
+    return{label:d.name,kind:d.pol,on:d.pol==='debuff'?'target':'self',cs:d.id,owner:d.owner,cost:d.perStack,max:5,txt:n=>`${d.pol==='debuff'?'inflict':'gain'} ${n} ${d.name}`};
+  }
+  return null;
+}
+
+/* ---------- passives (player-made) ---------- */
+const P_TRIG={
+  start:    {label:'Combat start',f:.5},
+  turnStart:{label:'Turn start',f:1},
+  turnEnd:  {label:'Turn end',f:1},
+  lowhp:    {label:'Turn end, while below half HP',f:.6},
+  win:      {label:'After winning a clash',f:.8},
+  lose:     {label:'After losing a clash',f:.6},
+  hit:      {label:'When hit by an attack',f:1},
+  kill:     {label:'After defeating an enemy',f:.45},
+  allyDown: {label:'When an ally goes down',f:.3},
+};
+const P_EFF={
+  heal:   {label:'Recover HP',v:.9,max:10,txt:p=>`recover ${p.amt} HP`},
+  sp:     {label:'Recover Sanity',v:.5,max:10,txt:p=>`recover ${p.amt} Sanity`},
+  shield: {label:'Gain Shield',v:.6,max:10,txt:p=>`gain ${p.amt} Shield`},
+  self:   {label:'Gain a status',max:5,txt:p=>{const e=effDef(p.status);return e?e.txt(p.amt):'(removed status)'}},
+  inflict:{label:'Inflict a status',max:5,txt:p=>{const e=effDef(p.status);return e?`${e.txt(p.amt)} on ${p.trig==='hit'?'the attacker':'a random enemy'}`:'(removed status)'}},
+};
+function passiveVal(p){if(p.eff==='self'||p.eff==='inflict'){const e=effDef(p.status);return e?e.cost*.8:0}return P_EFF[p.eff].v}
+function passiveCost(p){return Math.round(4+passiveVal(p)*p.amt*P_TRIG[p.trig].f*2.5)}
+function passiveText(p){return `${P_TRIG[p.trig].label}: ${P_EFF[p.eff].txt(p)}.`}
+function passiveStatusOptions(eff,owner){
+  const want=eff==='self'?'self':'target';
+  const base=Object.keys(EFFECTS).filter(k=>{const e=EFFECTS[k];return e.kind!=='drawback'&&e.on===want&&(e.st||k==='burst')});
+  const mine=Object.values(save.statuses).filter(d=>d.owner===owner&&(d.pol==='debuff')===(want==='target')).map(d=>'cs_'+d.id);
+  return[...base,...mine];
+}
+
+/* ---------- skills ---------- */
+const SK={};
+function def(id,name,type,base,coins,coinPow,fx=[]){SK[id]={id,name,type,base,coins,coinPow,effects:fx.map(([trig,eff,amt])=>({trig,eff,amt}))}}
+def('brace','Brace','guard',3,1,3);
+def('v1','Hook Cut','slash',4,2,3,[['hit','bleed',1]]);
+def('v2','Line Snap','slash',5,2,4,[['heads','bleedc',1]]);
+def('v3','Gut the Catch','slash',6,3,3,[['hit','bleed',2]]);
+def('o1','Hammer Lean','blunt',5,1,5,[['hit','tremor',3]]);
+def('o2','Breakwater','guard',6,1,4,[['use','protection',2]]);
+def('o3','Pile Driver','blunt',4,3,3,[['hit','tremor',1],['final','burst',1]]);
+def('m1','Needle Step','pierce',3,3,2,[['use','poise',2]]);
+def('m2','Riposte Line','pierce',5,2,3,[['win','poisec',2]]);
+def('m3','Eight Stitches','pierce',4,4,2,[['heads','poise',1]]);
+def('t1','Ember Toss','pierce',3,2,3,[['hit','burn',1]]);
+def('t2','Censer Swing','blunt',5,2,3,[['use','rally',1]]);
+def('t3','Kindled Litany','blunt',4,3,3,[['hit','burn',2]]);
+// enemies
+def('e_shiv','Rusty Shiv','slash',3,2,2);
+def('e_bite','Bilge Bite','pierce',4,1,3,[['hit','bleed',1]]);
+def('e_club','Mooring Club','blunt',4,2,3);
+def('e_hook','Gaff Hook','slash',4,2,2,[['hit','bleed',1]]);
+def('e_wick','Wick Lash','pierce',4,2,3,[['hit','burn',2]]);
+def('e_flare','Flare-Up','blunt',6,3,2,[['hit','burn',1],['final','burnc',1]]);
+def('e_veil','Smoke Veil','guard',5,1,4);
+def('e_hymn','Hymn Blade','slash',5,2,3);
+def('e_chorus','Close Harmony','guard',4,2,2,[['use','rally',1]]);
+def('e_note','High Note','pierce',5,2,3,[['hit','sinking',1]]);
+def('e_knife','Ledger Knife','slash',4,3,2,[['hit','bleed',2]]);
+def('e_notice','Final Notice','pierce',7,1,5,[['hit','sinking',3]]);
+def('e_crush','Crush','blunt',6,2,3,[['hit','rupture',2]]);
+def('e_grind','Grind','blunt',4,4,2,[['hit','fragile',1]]);
+def('e_draw','Quickdraw','pierce',5,2,3,[['use','poise',2],['first','powerdown',1]]);
+def('e_stitch','Market Stitch','pierce',3,4,2);
+def('e_stamp','Rubber Stamp','blunt',5,2,3,[['hit','bind',1]]);
+def('e_audit','Audit','guard',4,1,4);
+def('e_toll','Toll Due','slash',5,3,2,[['hit','bleed',1]]);
+def('e_seal','Ledger Seal','blunt',7,2,3,[['hit','paralysis',1]]);
+def('e_passage','Coin of Passage','pierce',3,5,2,[['heads','rupture',1]]);
+def('e_shut','Gate Shut','guard',8,2,4,[['use','powerup',2]]);
+
+/* ---------- looks ---------- */
+const BASE_LOOK={skin:'#e9c3a2',hair:'crop',hairColor:'#2a1d18',eyes:'round',eyeColor:'#3d2a1f',brows:'flat',mouth:'line',mark:'none',
+  outfit:'blazer',c1:'#2f3340',c2:'#d9d0c0',c3:'#c4473a',hat:'none',hatColor:'#2a2328',eyewear:'none',ewColor:'#1b1418',neck:'none',neckColor:'#c4473a',back:'none',backColor:'#5a2a24',extra:'none',extraColor:'#d6a64f'};
+const lk=o=>({...BASE_LOOK,...o});
+
+const CHARS={
+  vesna:{name:'Vesna Kroll',short:'Vesna',role:'Hook-line cutter',bio:'Works the fish-market blades. Opens wounds that keep paying out every time the enemy swings.',hp:68,spd:[3,6],stagger:[.4],res:{slash:1,pierce:1,blunt:1.2},base:['v1','v2','v3'],sig:'bleed',weapon:'hook',
+    look:lk({skin:'#e9c3a2',hair:'ponytail',hairColor:'#8a2f22',eyes:'sharp',eyeColor:'#3d6b5c',brows:'angry',mouth:'smirk',mark:'scar',outfit:'vest',c1:'#3a3f4a',c2:'#d9d0c0',c3:'#c4473a',hat:'bandana',hatColor:'#c4473a',extra:'gloves',extraColor:'#2a2328'})},
+  oren:{name:'Oren Hask',short:'Oren',role:'Breakwater bruiser',bio:'Former dock foreman. Slow and hard to move. Shakes enemies with Tremor, then bursts it to stagger them.',hp:92,spd:[2,4],stagger:[.4],res:{slash:.8,pierce:1,blunt:.9},base:['o1','o2','o3'],sig:'tremor',weapon:'hammer',
+    look:lk({skin:'#b07a55',hair:'buzz',hairColor:'#2a201b',eyes:'narrow',brows:'thick',mouth:'frown',outfit:'overalls',c1:'#44546a',c2:'#c9b38a',c3:'#d6a64f',hat:'beanie',hatColor:'#7c2f2a',neck:'scarf',neckColor:'#d6a64f'})},
+  mireille:{name:'Mireille Duvant',short:'Mireille',role:'Needle duelist',bio:'Fastest on the pier. Builds Poise until nearly every thrust lands as a critical.',hp:58,spd:[4,7],stagger:[.4],res:{slash:1.2,pierce:.9,blunt:1},base:['m1','m2','m3'],sig:'poise',weapon:'rapier',
+    look:lk({skin:'#f1d5c0',hair:'bob',hairColor:'#e9d8a6',eyes:'lashes',eyeColor:'#4a5fa8',brows:'arched',mouth:'small',outfit:'blazer',c1:'#1e2230',c2:'#efe8dc',c3:'#cbbf55',eyewear:'monocle',ewColor:'#d6a64f',neck:'bowtie',neckColor:'#cbbf55',back:'halfcape',backColor:'#1e2230'})},
+  tamsin:{name:'Tamsin Reed',short:'Tamsin',role:'Censer-bearer',bio:'Swings a burning censer. Sets enemies alight and keeps the squad’s nerve steady.',hp:64,spd:[3,5],stagger:[.4],res:{slash:1,pierce:1.2,blunt:.9},base:['t1','t2','t3'],sig:'burn',weapon:'censer',
+    look:lk({skin:'#d9a37c',hair:'long',hairColor:'#1b1514',eyes:'sleepy',eyeColor:'#8a4b2a',brows:'worried',mouth:'line',mark:'freckles',outfit:'robe',c1:'#5a2a24',c2:'#e3c79a',c3:'#e3813a',extra:'earring',extraColor:'#d6a64f'})},
+};
+const CHAR_IDS=Object.keys(CHARS);
+
+const ENEMIES={
+  rat:{name:'Dock Rat',hp:30,spd:[2,4],res:{slash:1.2,pierce:1,blunt:.9},stagger:[.5],skills:['e_shiv','e_bite'],weapon:'knife',scale:.9,
+    look:lk({skin:'#cfae94',hair:'messy',hairColor:'#4a3b30',eyes:'glare',eyeColor:'#9a3b3b',brows:'angry',mouth:'teeth',outfit:'hoodie',c1:'#4b4a3c',c2:'#6b6450',c3:'#8a7f5f',extra:'mask',extraColor:'#3b3a33'})},
+  thug:{name:'Hookline Thug',hp:46,spd:[2,5],res:{slash:1,pierce:1.2,blunt:.8},stagger:[.5],skills:['e_club','e_hook'],weapon:'club',
+    look:lk({skin:'#c48d68',hair:'crop',hairColor:'#1d1714',eyes:'narrow',brows:'thick',mouth:'scowl',mark:'stitch',outfit:'vest',c1:'#3a2f2a',c2:'#8a7a66',c3:'#a8672e',hat:'cap',hatColor:'#3d4a3a'})},
+  keeper:{name:'The Lantern Keeper',hp:150,spd:[3,5],dice:2,res:{slash:.8,pierce:1.3,blunt:1},stagger:[.6,.3],skills:['e_wick','e_flare','e_wick','e_veil'],weapon:'lantern',scale:1.2,
+    look:lk({skin:'#8f8a84',hair:'bald',eyes:'dot',eyeColor:'#e3813a',brows:'none',mouth:'line',outfit:'robe',c1:'#2a2622',c2:'#7d6a3d',c3:'#e3813a',hat:'tophat',hatColor:'#1b1714',eyewear:'visor',ewColor:'#e3813a'})},
+  acolyte:{name:'Choir Acolyte',hp:48,spd:[3,5],res:{slash:1,pierce:.6,blunt:1.4},stagger:[.5],skills:['e_hymn','e_hymn','e_chorus'],weapon:'sword',
+    look:lk({skin:'#e2c6a8',hair:'bald',eyes:'closed',brows:'worried',mouth:'open',outfit:'robe',c1:'#8a6b3a',c2:'#efe1b5',c3:'#d6a64f'})},
+  cantor:{name:'Brass Cantor',hp:72,spd:[3,6],res:{slash:1,pierce:.6,blunt:1.3},stagger:[.5],skills:['e_hymn','e_note'],weapon:'sword',scale:1.1,
+    look:lk({skin:'#e2c6a8',hair:'hime',hairColor:'#efe1b5',eyes:'closed',brows:'arched',mouth:'open',outfit:'robe',c1:'#6b5a2e',c2:'#efe1b5',c3:'#f1cf86',hat:'halo',hatColor:'#f1cf86'})},
+  collector:{name:'Debt Collector',hp:60,spd:[3,6],res:{slash:.9,pierce:1.2,blunt:1},stagger:[.5],skills:['e_knife','e_notice'],weapon:'knife',
+    look:lk({skin:'#d8b49a',hair:'slick',hairColor:'#151112',eyes:'sharp',brows:'flat',mouth:'smirk',outfit:'blazer',c1:'#151318',c2:'#7a1f1f',c3:'#d6a64f',hat:'fedora',hatColor:'#151318',eyewear:'shades',ewColor:'#151112',neck:'tie',neckColor:'#7a1f1f'})},
+  grinder:{name:'The Grinder',hp:150,spd:[1,3],dice:2,res:{slash:.9,pierce:1.4,blunt:.6},stagger:[.65,.35],skills:['e_crush','e_grind'],weapon:'hammer',scale:1.3,
+    look:lk({skin:'#a07a5e',hair:'bald',eyes:'glare',eyeColor:'#e3813a',brows:'angry',mouth:'teeth',mark:'stitch',outfit:'jumpsuit',c1:'#7a3b22',c2:'#3a2a22',c3:'#d6a64f',eyewear:'visor',ewColor:'#e3813a',extra:'mask',extraColor:'#2a2328'})},
+  fixer:{name:'Market Fixer',hp:62,spd:[4,7],res:{slash:1.2,pierce:1,blunt:1},stagger:[.5],skills:['e_draw','e_stitch'],weapon:'rapier',
+    look:lk({skin:'#c99474',hair:'undercut',hairColor:'#3d6fa8',eyes:'sharp',eyeColor:'#4fa8a2',brows:'flat',mouth:'smirk',outfit:'trench',c1:'#3d4a3a',c2:'#c9b38a',c3:'#4fa8a2',eyewear:'round',ewColor:'#d6a64f',neck:'scarf',neckColor:'#4fa8a2'})},
+  clerk:{name:'Toll Clerk',hp:44,spd:[3,5],res:{slash:1.2,pierce:1,blunt:1},stagger:[.5],skills:['e_stamp','e_stamp','e_audit'],weapon:'club',
+    look:lk({skin:'#e9c3a2',hair:'sidepart',hairColor:'#5a4636',eyes:'tired',brows:'worried',mouth:'small',outfit:'blazer',c1:'#55525a',c2:'#efe8dc',c3:'#7a1f1f',eyewear:'square',ewColor:'#1b1418',neck:'tie',neckColor:'#7a1f1f'})},
+  tollkeeper:{name:'The Tollkeeper',hp:240,spd:[3,6],dice:3,res:{slash:1,pierce:.9,blunt:1.2},stagger:[.7,.4,.15],skills:['e_toll','e_seal','e_passage','e_toll','e_shut'],weapon:'sword',scale:1.3,
+    look:lk({skin:'#d6c7b8',hair:'long',hairColor:'#f2f0ec',eyes:'glare',eyeColor:'#d6a64f',brows:'angry',mouth:'smirk',outfit:'military',c1:'#1d1a24',c2:'#d6a64f',c3:'#7a1f1f',hat:'tophat',hatColor:'#1d1a24',eyewear:'monocle',ewColor:'#d6a64f',back:'cape',backColor:'#5c1f1f',neck:'cravat',neckColor:'#efe8dc'})},
+};
+
+const STAGES=[
+  {id:'s1',name:'Pier Nine Toll',blurb:'Rats nesting under the toll booth. Good place to learn how clashes work.',enemies:['rat','rat'],reward:6},
+  {id:'s2',name:'Hookline Shakedown',blurb:'A gang is charging fishermen a second toll. Thugs resist Blunt, so lean on blades.',enemies:['thug','rat','thug'],reward:7},
+  {id:'s3',name:'The Lantern Keeper',blurb:'Two attacks a turn and everything burns. Pierce finds the gaps in its brass.',enemies:['keeper'],reward:9},
+  {id:'s4',name:'Brass Choir Rehearsal',blurb:'The choir shrugs off Pierce and folds to Blunt. Their songs drag your Sanity down.',enemies:['acolyte','acolyte','cantor'],reward:9},
+  {id:'s5',name:'Overdue Accounts',blurb:'Collectors stack Bleed and Sinking fast. Win clashes so their knives never land.',enemies:['collector','collector','thug'],reward:10},
+  {id:'s6',name:'The Grinder Pit',blurb:'Slow and enormous, and Blunt barely scratches it. Stagger it and pile on.',enemies:['grinder','rat'],reward:12},
+  {id:'s7',name:'Night Market Brawl',blurb:'Four at once, each with a different weakness. Plan every target.',enemies:['fixer','collector','acolyte','thug'],reward:12},
+  {id:'s8',name:'The Tollkeeper',blurb:'Three attacks a turn, Paralysis, and a guard that powers up. Every debt on the pier ends here.',enemies:['tollkeeper','clerk'],reward:20},
+];
+
+/* ---------- save ---------- */
+const SAVE_KEY='tollbound-save-v1';
+function defaultSave(){
+  const o={v:2,tokens:{},customs:{},statuses:{},passives:{},passEq:{},loadout:{},looks:{},team:['vesna','oren','mireille'],cleared:{},best:0,streak:0,wins:0,speed:1};
+  CHAR_IDS.forEach(id=>{o.tokens[id]=6;o.loadout[id]=[...CHARS[id].base];o.passEq[id]=[];o.looks[id]={...CHARS[id].look}});
+  return o;
+}
+const OLD_FX={shatter:'rupture',focus:'poise',might:'powerup',weaken:'powerdown',rattle:'paralysis',jinx:'sinking',dread:'sinking',rot:'burn'};
+function loadSave(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(raw){
+    const s=JSON.parse(raw),d=defaultSave();
+    const o={...d,...s,tokens:{...d.tokens,...s.tokens},loadout:{...d.loadout,...s.loadout},passEq:{...d.passEq,...(s.passEq||{})},statuses:s.statuses||{},passives:s.passives||{},looks:{}};
+    CHAR_IDS.forEach(id=>o.looks[id]={...d.looks[id],...((s.looks||{})[id]||{})});
+    Object.values(o.customs).forEach(c=>{c.effects=(c.effects||[]).map(f=>({...f,eff:OLD_FX[f.eff]||f.eff})).filter(f=>EFFECTS[f.eff]||(String(f.eff).startsWith('cs_')&&o.statuses[f.eff.slice(3)]))});
+    o.v=2;return o}}catch(e){}
+  return defaultSave();
+}
+function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save))}catch(e){}}
+let save=loadSave();
+SPEED.mult=[1,2,4].includes(save.speed)?save.speed:1;
+const getSkill=id=>SK[id]||save.customs[id]||null;
+
+/* ---------- skill math ---------- */
+function skillRange(s,bonus=0){const lo=s.base+bonus+Math.min(0,s.coinPow)*s.coins,hi=s.base+bonus+Math.max(0,s.coinPow)*s.coins;return[Math.max(0,lo),Math.max(0,hi)]}
+function maxHit(s){let p=s.base,t=0;for(let i=0;i<s.coins;i++){if(s.coinPow>0)p+=s.coinPow;t+=Math.max(0,p)}return t}
+function costParts(s){
+  const parts=[];
+  if(s.base>3)parts.push([`Base power ${s.base}`,(s.base-3)*2]);
+  if(s.coins>1)parts.push([`${s.coins} coins`,(s.coins-1)*4]);
+  if(s.coinPow>1)parts.push([`Coin power +${s.coinPow} × ${s.coins} coin${s.coins>1?'s':''}`,(s.coinPow-1)*s.coins]);
+  if(s.coinPow<0)parts.push([`Coin power ${s.coinPow} drawback`,s.coinPow*s.coins*.5]);
+  for(const f of s.effects){const e=effDef(f.eff);if(e)parts.push([`${TRIGGERS[f.trig].label} · ${e.label} ${f.amt}`,e.cost*f.amt*TRIGGERS[f.trig].mult(s.coins)])}
+  return parts;
+}
+// Drawbacks and negative coin power refund tokens, but never more than 40% of what the rest of the skill costs.
+function costSummary(s){
+  const parts=costParts(s);let P=0,N=0;parts.forEach(p=>{if(p[1]>=0)P+=p[1];else N+=p[1]});
+  const cap=-.4*P,capped=N<cap,raw=P+Math.max(N,cap);
+  return{parts,P,N,capped,raw,total:Math.max(3,Math.round(raw))};
+}
+function skillCost(s){return costSummary(s).total}
+function skillCard(s,o={}){
+  const [lo,hi]=skillRange(s,o.bonus||0);
+  const tag=o.button?'button':'div';
+  const fx=(s.effects||[]).map(f=>{const e=effDef(f.eff);return `<span><b>${TRIGGERS[f.trig].label}:</b> ${e?esc(e.txt(f.amt)):'(removed status)'}</span>`}).join('');
+  return `<${tag} class="skill t-${s.type} ${o.cls||''}" ${o.button?'type="button"':''} ${o.attrs||''}>
+    <span class="sk-head"><span class="sk-type">${TYPES[s.type]}</span><span>${lo}–${hi}</span></span>
+    <span class="sk-name">${esc(s.name)}</span>
+    <span class="sk-pow"><b>${s.base}</b><span class="coins">${'<i class="coin"></i>'.repeat(s.coins)}</span><span>${sgn(s.coinPow)}</span></span>
+    ${fx?`<span class="sk-fx">${fx}</span>`:''}
+  </${tag}>`;
+}
+function resLine(res){return['slash','pierce','blunt'].map(k=>`<span class="${res[k]>1?'weak':res[k]<1?'tough':''}">${TYPES[k]} ×${res[k]}</span>`).join('')}
+
+
+/* ---------- paper-doll sprites ---------- */
+const OL='#1b1418';
+function hexRgb(h){h=String(h||'#000').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16)||0;return[(n>>16)&255,(n>>8)&255,n&255]}
+function shade(h,a){const [r,g,b]=hexRgb(h);const f=v=>Math.round(clamp(a<0?v*(1+a):v+(255-v)*a,0,255));return'#'+[f(r),f(g),f(b)].map(v=>v.toString(16).padStart(2,'0')).join('')}
+const P=(d,fill,extra='')=>`<path d="${d}" fill="${fill}" stroke="${OL}" stroke-width="1.4" stroke-linejoin="round" ${extra}/>`;
+const L=(d,col,w=1.4,extra='')=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+const C=(x,y,r,fill,extra='')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${OL}" stroke-width="1.2" ${extra}/>`;
+
+const HAIR_BACK={
+  bob:h=>P('M43 40 Q42 23 60 22 Q78 23 77 40 L78 60 Q72 64 67 58 L53 58 Q48 64 42 60 Z',h),
+  hime:h=>P('M43 38 Q43 21 60 21 Q77 21 77 38 L79 74 L41 74 Z',h),
+  long:h=>P('M44 38 Q44 21 60 21 Q76 21 76 38 L80 79 Q60 85 40 79 Z',h),
+  wavy:h=>P('M44 38 Q44 21 60 21 Q76 21 76 38 Q82 52 77 64 Q83 74 77 82 Q60 87 43 82 Q37 74 43 64 Q38 52 44 38Z',h),
+  ponytail:h=>P('M47 33 Q30 36 32 54 Q30 70 38 80 Q42 68 43 58 Q46 46 51 38 Z',h),
+  twintails:h=>P('M45 38 Q30 44 31 62 Q30 76 37 84 Q40 72 41 62 Q44 50 47 42Z',h)+P('M75 38 Q90 44 89 62 Q90 76 83 84 Q80 72 79 62 Q76 50 73 42Z',h),
+  bun:h=>C(50,23,7,h),
+  braid:h=>[0,1,2].map(i=>`<ellipse cx="44" cy="${60+i*8}" rx="4.6" ry="5" fill="${h}" stroke="${OL}" stroke-width="1.1"/>`).join('')+C(44,82,2.2,'#c4473a'),
+  afro:h=>C(60,37,25,h),
+  curly:h=>[[44,40],[47,30],[55,24],[65,24],[73,30],[76,40]].map(([x,y])=>C(x,y,7,h)).join(''),
+  slick:h=>P('M45 40 Q37 44 41 54 L47 47Z',h),
+};
+const HAIR_FRONT={
+  bald:h=>'',
+  buzz:h=>P('M45 41 Q45 26 60 26 Q75 26 75 41 Q70 31 60 31 Q50 31 45 41Z',h,'opacity=".9"'),
+  crop:h=>P('M44 42 Q42 24 60 23 Q78 24 76 42 Q74 36 70 35 L66 38 L62 34 L56 37 L52 34 Q47 36 44 42Z',h),
+  sidepart:h=>P('M44 46 Q41 23 60 22 Q79 24 76 44 Q74 34 66 32 Q56 34 50 40 Q47 42 44 46Z',h),
+  messy:h=>P('M43 44 L42 36 L46 34 L44 28 L50 30 L52 23 L57 28 L61 21 L64 28 L70 24 L70 30 L76 30 L74 36 L78 40 L76 44 Q72 36 60 35 Q48 36 43 44Z',h),
+  spiky:h=>P('M44 42 L36 30 L47 31 L44 16 L54 27 L58 10 L63 26 L72 14 L71 29 L84 26 L76 38 L76 44 Q70 35 60 34 Q50 35 44 42Z',h),
+  slick:h=>P('M44 42 Q42 23 60 22 Q80 22 77 40 Q72 30 58 30 Q50 31 44 42Z',h)+L('M52 27 Q62 24 72 29',shade(h,.35),1.1),
+  undercut:h=>P('M44 44 Q44 31 49 29 L49 41Z',shade(h,.25))+P('M46 36 Q46 19 64 19 Q83 21 80 34 Q76 30 70 32 Q60 30 52 36Z',h),
+  mohawk:h=>P('M45 42 Q45 30 50 28 L50 40Z',shade(h,.3))+P('M75 42 Q75 30 70 28 L70 40Z',shade(h,.3))+P('M55 34 L53 13 L60 8 L67 13 L65 34 Q60 32 55 34Z',h),
+  curly:h=>[[47,36],[52,31],[58,29],[64,30],[70,33],[74,38]].map(([x,y])=>C(x,y,5,h)).join(''),
+  afro:h=>[[46,36],[52,31],[59,29],[66,30],[72,34],[75,40]].map(([x,y])=>C(x,y,5.5,h)).join(''),
+  bob:h=>P('M44 44 Q42 23 60 22 Q78 23 76 44 L74 40 L70 38 L64 40 L58 37 L52 40 L47 38 Z',h),
+  hime:h=>P('M44 46 Q42 22 60 21 Q78 22 76 46 L74 40 L46 40 Z',h)+P('M43 40 L48 40 L48 67 L43 65Z',h)+P('M72 40 L77 40 L77 65 L72 67Z',h),
+  long:h=>P('M44 46 Q42 22 60 21 Q78 22 76 44 Q70 34 58 36 Q50 40 44 46Z',h)+P('M44 40 Q40 54 44 66 L48 62 Q46 52 48 42Z',h),
+  wavy:h=>P('M44 46 Q42 22 60 21 Q78 22 76 44 Q72 33 62 35 Q54 38 50 34 Q46 40 44 46Z',h)+P('M76 40 Q81 54 76 66 L72 62 Q75 52 72 42Z',h),
+  ponytail:h=>P('M44 42 Q42 23 60 22 Q78 23 76 42 Q70 32 60 32 Q50 32 44 42Z',h)+C(46,36,2.4,'#c4473a'),
+  twintails:h=>P('M44 42 Q42 23 60 22 Q78 23 76 42 Q70 32 61 32 L60 26 L59 32 Q50 32 44 42Z',h)+C(45,40,2.2,'#c4473a')+C(75,40,2.2,'#c4473a'),
+  bun:h=>P('M44 42 Q42 23 60 22 Q78 23 76 42 Q70 32 60 32 Q50 32 44 42Z',h),
+  braid:h=>P('M44 42 Q42 23 60 22 Q78 23 76 42 Q70 31 60 33 Q50 31 44 42Z',h),
+};
+const EYES={
+  round:(x,c)=>`<ellipse cx="${x}" cy="46" rx="2.8" ry="3.2" fill="#fff" stroke="${OL}" stroke-width=".7"/><circle cx="${x+.4}" cy="46.4" r="1.9" fill="${c}"/><circle cx="${x+.6}" cy="46.5" r=".85" fill="${OL}"/><circle cx="${x-.3}" cy="45.4" r=".6" fill="#fff"/>`,
+  wide:(x,c)=>`<ellipse cx="${x}" cy="46" rx="3.4" ry="3.9" fill="#fff" stroke="${OL}" stroke-width=".9"/><circle cx="${x+.4}" cy="46.4" r="2.2" fill="${c}"/><circle cx="${x+.6}" cy="46.3" r=".9" fill="${OL}"/><circle cx="${x-.6}" cy="45.2" r=".6" fill="#fff"/>`,
+  sharp:(x,c)=>`<path d="M${x-3.4} 46.8 Q${x} 43 ${x+3.4} 45.2 Q${x} 48.8 ${x-3.4} 46.8Z" fill="#fff" stroke="${OL}" stroke-width="1"/><circle cx="${x+.5}" cy="46.2" r="1.6" fill="${c}"/>${L(`M${x-3.6} 46.6 Q${x} 42.6 ${x+3.6} 44.8`,OL,1.5)}`,
+  sleepy:(x,c,s)=>`<ellipse cx="${x}" cy="46.4" rx="2.9" ry="2.8" fill="#fff" stroke="${OL}" stroke-width=".9"/><circle cx="${x+.3}" cy="47" r="1.7" fill="${c}"/><path d="M${x-3.3} 46.4 Q${x} 42.6 ${x+3.3} 46.4Z" fill="${s}"/>${L(`M${x-3.3} 46.4 L${x+3.3} 46.4`,OL,1.3)}`,
+  narrow:(x,c)=>`${L(`M${x-3.2} 46 L${x+3.2} 45.8`,OL,1.5)}<circle cx="${x+.6}" cy="46.4" r="1.1" fill="${c}"/>`,
+  closed:(x)=>L(`M${x-3} 46.6 Q${x} 44 ${x+3} 46.6`,OL,1.4),
+  lashes:(x,c)=>EYES.round(x,c)+L(`M${x+2.2} 43.2 L${x+3.8} 41.8 M${x+3} 44.3 L${x+4.8} 43.6 M${x} 42.7 L${x+.6} 41.2`,OL,1),
+  tired:(x,c,s)=>EYES.round(x,c)+L(`M${x-2.6} 49.8 Q${x} 51.2 ${x+2.6} 49.8`,shade(s,-.35),1),
+  glare:(x,c)=>`<path d="M${x-3.4} 45 L${x+3.4} 46.6 Q${x} 49 ${x-3.4} 45Z" fill="#fff" stroke="${OL}" stroke-width="1"/><circle cx="${x+.4}" cy="46.6" r="1.2" fill="${c}"/>`,
+  dot:(x,c)=>`<circle cx="${x}" cy="46.2" r="1.8" fill="${c}" stroke="${OL}" stroke-width=".6"/><circle cx="${x-.5}" cy="45.6" r=".5" fill="#fff"/>`,
+};
+const BROWS={
+  flat:c=>L('M50.5 41 L57 41 M63 41 L69.5 41',c,1.6),
+  arched:c=>L('M50.5 42 Q53.6 39.2 57 41.2 M63 41.2 Q66.4 39.2 69.5 42',c,1.5),
+  angry:c=>L('M50.5 39.8 L57 42.2 M63 42.2 L69.5 39.8',c,1.7),
+  worried:c=>L('M50.5 42.2 L57 40 M63 40 L69.5 42.2',c,1.5),
+  thick:c=>L('M50.5 41 L57 41 M63 41 L69.5 41',c,2.8),
+  none:()=>'',
+};
+const MOUTHS={
+  line:()=>L('M57 55 L63 55',OL,1.3),
+  smile:()=>L('M56.5 54 Q60 57.6 63.5 54',OL,1.3),
+  frown:()=>L('M56.5 56.6 Q60 53.4 63.5 56.6',OL,1.3),
+  smirk:()=>L('M57 55.6 Q61 56 63.6 53.4',OL,1.3),
+  open:()=>`<ellipse cx="60" cy="55.6" rx="2.3" ry="1.9" fill="#5a1f22" stroke="${OL}" stroke-width="1"/>`,
+  teeth:()=>`<rect x="56.4" y="53.8" width="7.2" height="3.2" rx="1" fill="#fff" stroke="${OL}" stroke-width="1"/>${L('M56.6 55.4 L63.4 55.4',OL,.6)}`,
+  small:()=>L('M59 55.2 L61.2 55.2',OL,1.2),
+  scowl:()=>L('M56.4 56.2 L58.5 54.8 L61.5 54.8 L63.6 56.2',OL,1.3),
+};
+const MARKS={
+  none:()=>'',
+  scar:()=>L('M50 40 L57 53',"#b85c5c",1.3)+L('M51.6 43.6 L54 42.6 M53.6 47.6 L56 46.6',"#b85c5c",.9),
+  freckles:s=>[[51,51.4],[53.2,52.2],[55.2,51.2],[64.8,51.2],[66.8,52.2],[69,51.4]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r=".65" fill="${shade(s,-.4)}"/>`).join(''),
+  blush:()=>`<ellipse cx="51" cy="52" rx="3" ry="1.6" fill="#e07a7a" opacity=".5"/><ellipse cx="69" cy="52" rx="3" ry="1.6" fill="#e07a7a" opacity=".5"/>`,
+  stitch:()=>L('M70 40 L70 56',OL,1)+L('M68.4 43 L71.6 43 M68.4 47 L71.6 47 M68.4 51 L71.6 51',OL,.9),
+  paint:()=>`<rect x="50" y="49.6" width="7" height="1.8" rx=".9" fill="#c4473a"/><rect x="63" y="49.6" width="7" height="1.8" rx=".9" fill="#c4473a"/>`,
+};
+const HATS={
+  none:()=>'',
+  fedora:c=>P('M46 32 Q46 15 60 15 Q74 15 74 32 Z',c)+P('M46 28.6 L74 28.6 L74 32 L46 32Z',shade(c,-.35))+P('M35 33 Q60 25 85 33 Q60 39 35 33Z',c),
+  beanie:c=>P('M43 39 Q42 17 60 17 Q78 17 77 39 Z',c)+P('M42 34 L78 34 L78 40 L42 40Z',shade(c,-.15))+C(60,16,4,shade(c,.2)),
+  cap:c=>P('M44 36 Q44 19 60 19 Q76 19 76 36Z',c)+P('M70 33.5 Q87 32.5 93 37 Q80 39.5 70 37Z',shade(c,-.18)),
+  tophat:c=>P('M47 30 L48 3 L72 3 L73 30Z',c)+P('M48 23.5 L72 23.5 L72.4 29 L47.6 29Z',shade(c,.3))+P('M37 31 Q60 26.5 83 31 Q60 36.5 37 31Z',c),
+  beret:c=>P('M42 32 Q46 17 64 18 Q83 20 78 31 Q62 34.5 42 32Z',c)+L('M63 18 L65 14',OL,1.6),
+  bandana:c=>P('M44 38 Q43 21 60 20 Q77 21 76 38 Q60 34 44 38Z',c)+P('M45 34 L35 40 L39 45 Z',shade(c,-.15))+P('M45 35 L37 49 L43 48Z',shade(c,-.15)),
+  horns:c=>P('M48 30 Q39 18 43 6 Q48 19 54 26Z',c)+P('M72 30 Q81 18 77 6 Q72 19 66 26Z',c),
+  halo:c=>`<ellipse cx="60" cy="13" rx="15" ry="4.2" fill="none" stroke="${c}" stroke-width="5" opacity=".25"/><ellipse cx="60" cy="13" rx="14" ry="3.8" fill="none" stroke="${c}" stroke-width="2.4"/>`,
+  headband:c=>P('M44 35 Q60 31 76 35 L76 39.5 Q60 35.5 44 39.5Z',c)+P('M45 36 L35 43 L37 46.5 L46 40Z',c),
+};
+const EYEWEAR={
+  none:()=>'',
+  round:c=>`<circle cx="54" cy="46" r="4.3" fill="#fff" fill-opacity=".12" stroke="${c}" stroke-width="1.4"/><circle cx="66" cy="46" r="4.3" fill="#fff" fill-opacity=".12" stroke="${c}" stroke-width="1.4"/>${L('M58.3 46 L61.7 46',c,1.3)}`,
+  square:c=>`<rect x="49.4" y="42.6" width="9.2" height="7" rx="1.6" fill="#fff" fill-opacity=".12" stroke="${c}" stroke-width="1.4"/><rect x="61.4" y="42.6" width="9.2" height="7" rx="1.6" fill="#fff" fill-opacity=".12" stroke="${c}" stroke-width="1.4"/>${L('M58.6 45.6 L61.4 45.6',c,1.3)}`,
+  shades:c=>`<rect x="48.6" y="42.8" width="10.4" height="6.6" rx="2.6" fill="${c}" stroke="${OL}" stroke-width="1.2"/><rect x="61" y="42.8" width="10.4" height="6.6" rx="2.6" fill="${c}" stroke="${OL}" stroke-width="1.2"/>${L('M59 45.4 L61 45.4',OL,1.3)}${L('M50.4 44.6 L53 44.6 M62.8 44.6 L65.4 44.6',"#fff",.8,'opacity=".5"')}`,
+  monocle:c=>`<circle cx="66" cy="46" r="4.6" fill="#fff" fill-opacity=".15" stroke="${c}" stroke-width="1.5"/>${L('M70 48.5 Q75 58 70 67',c,.9)}`,
+  eyepatch:c=>`<ellipse cx="54" cy="46.2" rx="4.6" ry="4.1" fill="${c}" stroke="${OL}" stroke-width="1.1"/>${L('M50 43 L76 36.5 M49.6 46.6 L45 48.4',c,1.2)}`,
+  visor:c=>`<rect x="46" y="42.2" width="28" height="7.4" rx="3.7" fill="${c}" fill-opacity=".85" stroke="${OL}" stroke-width="1.2"/>${L('M49 44.6 L64 44.6',"#fff",.9,'opacity=".55"')}`,
+};
+const NECKWEAR={
+  none:()=>'',
+  tie:c=>P('M58 67.5 L62 67.5 L61.6 72 L58.4 72Z',c)+P('M58.4 72 L61.6 72 L63.2 92 L60 96.5 L56.8 92Z',c),
+  bowtie:c=>P('M60 70 L52 66 L52 75Z',c)+P('M60 70 L68 66 L68 75Z',c)+C(60,70.4,1.8,shade(c,-.2)),
+  scarf:c=>P('M49 61 Q60 68 71 61 L72 70 Q60 77 48 70Z',c)+P('M52 70 L47 94 L54 94 L57.5 72Z',shade(c,-.1)),
+  choker:c=>`<rect x="54" y="61.6" width="12" height="3.4" rx="1.4" fill="${c}" stroke="${OL}" stroke-width="1"/>`+C(60,66,1.4,'#d6a64f'),
+  cravat:c=>P('M55.5 65.5 Q60 63.5 64.5 65.5 L66.5 76 Q62 80 60 87 Q58 80 53.5 76Z',c),
+};
+const BACKWEAR={
+  none:()=>'',
+  cape:c=>P('M44 70 Q31 120 29 177 Q47 183 60 179 Q73 183 87 177 Q86 120 76 70Z',c)+L('M44 74 Q36 124 36 172',shade(c,-.25),1.2),
+  halfcape:c=>P('M42 70 Q29 92 31 124 Q46 128 58 119 L60 72Z',c),
+  scabbard:c=>`<g transform="rotate(38 60 100)"><rect x="56.5" y="62" width="7" height="76" rx="2.5" fill="${c}" stroke="${OL}" stroke-width="1.3"/><rect x="54" y="56" width="12" height="5" rx="1.6" fill="#c9c4bb" stroke="${OL}" stroke-width="1.1"/></g>`,
+  backpack:c=>`<rect x="33" y="76" width="15" height="38" rx="4" fill="${c}" stroke="${OL}" stroke-width="1.3"/><rect x="34.5" y="96" width="12" height="10" rx="2" fill="${shade(c,-.18)}" stroke="${OL}" stroke-width="1"/>`,
+};
+const EXTRAS={none:()=>'',mask:()=>'',earring:()=>'',armband:()=>'',gloves:()=>''};
+const WEAPONS={
+  hook:(c3)=>L('M66 108 L94 140','#6b4a33',3.4)+L('M94 140 Q105 146 98 157 Q92 161 89 153','#c9c4bb',2.6),
+  hammer:(c3)=>L('M70 110 L84 150','#6b4a33',3.6)+`<rect x="74" y="146" width="22" height="12" rx="2" transform="rotate(20 85 152)" fill="#8d8a86" stroke="${OL}" stroke-width="1.3"/>`,
+  rapier:(c3)=>L('M73 120 L111 150','#d7d3cc',2)+L('M68 114 Q72.5 107 78 114',c3,2.2),
+  censer:(c3)=>`<circle cx="77" cy="157" r="11" fill="#e3813a" opacity=".22"/>`+L('M72 120 L76.5 150','#c9c4bb',1.1,'stroke-dasharray="2 1.4"')+C(77,156.5,6.6,shade(c3,-.35))+`<circle cx="77" cy="156.5" r="2.4" fill="#ffb366"/>`,
+  knife:(c3)=>`<path d="M74 117 L94 127 L74 123Z" fill="#d7d3cc" stroke="${OL}" stroke-width="1.1"/>`,
+  club:(c3)=>L('M70 112 L91 145','#6b4a33',6)+C(92,147,5.2,'#5a3e2a'),
+  lantern:(c3)=>L('M72 120 L72 136','#c9c4bb',1.2)+`<circle cx="72" cy="146" r="14" fill="#e3813a" opacity=".2"/><rect x="65" y="136" width="14" height="19" rx="2" fill="#2a2328" stroke="${OL}" stroke-width="1.3"/><rect x="68" y="139.5" width="8" height="12" rx="1" fill="#ffb366"/>`,
+  sword:(c3)=>L('M74 120 L119 151','#d7d3cc',3.4)+L('M69 114 L79 125',c3,3.2),
+};
+function outfitParts(k){
+  const {outfit,c1,c2,c3}=k;
+  const T='M44 70 Q60 64 76 70 L78 82 L75 124 L45 124 L42 82 Z';
+  const btn=(x,y)=>C(x,y,1.3,c3,'stroke-width=".8"');
+  switch(outfit){
+    case 'trench':return{pants:shade(c2,-.45),sleeve:c1,torso:P('M44 70 Q60 64 76 70 L79 84 L84 158 L36 158 L41 84Z',c1)+L('M60 86 L60 157',shade(c1,-.3),1.1)+P('M48 68 L60 82 L72 68 L71 77 L60 88 L49 77Z',shade(c1,.12))+`<rect x="41" y="110" width="38" height="5" fill="${c3}" stroke="${OL}" stroke-width="1"/>`+`<rect x="57" y="109" width="6" height="7" fill="none" stroke="${OL}" stroke-width="1"/>`};
+    case 'hoodie':return{pants:shade(c2,-.15),sleeve:c1,back:P('M44 66 Q44 53 52 51 L68 51 Q76 53 76 66 Q60 74 44 66Z',shade(c1,-.12)),torso:P('M44 70 Q60 64 76 70 L78 82 L76 128 L44 128 L42 82 Z',c1)+P('M48 104 L72 104 L70 118 L50 118Z',shade(c1,-.12))+L('M57 70 L56 85 M63 70 L64 85',c3,1.2)};
+    case 'vest':return{pants:shade(c1,-.25),sleeve:c2,torso:P(T,c2)+P('M45 72 L55 70 L60 92 L65 70 L75 72 L76 123 L44 123Z',c1)+P('M55 68 L58 74 L60 70 L62 74 L65 68Z',c2)+btn(60,99)+btn(60,107)+btn(60,115)};
+    case 'overalls':return{pants:c1,sleeve:c2,torso:P(T,c2)+P('M50 88 L70 88 L71 125 L49 125Z',c1)+P('M50 88 L47 70 L51 69 L54 88Z',c1)+P('M70 88 L73 70 L69 69 L66 88Z',c1)+btn(52,89)+btn(68,89)+P('M55 96 L65 96 L65 104 L55 104Z',shade(c1,-.12))};
+    case 'robe':return{pants:c1,sleeve:c1,wide:true,hideLegs:true,torso:P('M44 70 Q60 64 76 70 L80 92 L86 184 L34 184 L40 92Z',c1)+`<rect x="58" y="70" width="4" height="114" fill="${c3}"/>`+P('M34.4 178 L85.6 178 L86 184 L34 184Z',c2)+P('M41 103 L79 103 L79 109 L41 109Z',c2)+L('M52 66 L60 78 L68 66',c2,2.4)};
+    case 'military':return{pants:shade(c1,-.25),sleeve:c1,boots:true,torso:P('M44 70 Q60 64 76 70 L78 84 L80 142 L40 142 L42 84Z',c1)+[84,94,104,124,134].map(y=>btn(55,y)+btn(65,y)).join('')+`<rect x="42" y="111" width="36" height="5" fill="${c3}" stroke="${OL}" stroke-width="1"/>`+`<rect x="53" y="63" width="14" height="6" fill="${c1}" stroke="${c2}" stroke-width="1.2"/>`+`<ellipse cx="44" cy="71" rx="6" ry="2.6" fill="${c2}" stroke="${OL}" stroke-width="1"/><ellipse cx="76" cy="71" rx="6" ry="2.6" fill="${c2}" stroke="${OL}" stroke-width="1"/>`};
+    case 'jumpsuit':return{pants:c1,sleeve:c1,torso:P(T,c1)+L('M60 68 L60 124',c2,1.4)+`<rect x="44" y="113" width="32" height="5" fill="${c3}" stroke="${OL}" stroke-width="1"/>`+`<rect x="64" y="79" width="8" height="6" fill="${c2}" stroke="${OL}" stroke-width=".9"/>`};
+    case 'dress':return{pants:shade(c1,-.45),sleeve:c1,torso:P('M44 70 Q60 64 76 70 L78 82 L75 112 L45 112 L42 82 Z',c1)+P('M45 109 L75 109 L88 160 Q60 168 32 160Z',shade(c1,.06))+P('M32.6 155 Q60 163 87.4 155 L88 160 Q60 168 32 160Z',c2)+`<rect x="45" y="107" width="30" height="5" fill="${c3}" stroke="${OL}" stroke-width="1"/>`+P('M54 68 L60 74 L66 68 L64 72 L60 76 L56 72Z',c2)};
+    default:/* blazer */return{pants:shade(c1,-.2),sleeve:c1,torso:P('M44 70 Q60 64 76 70 L78 82 L76 128 L44 128 L42 82 Z',c1)+P('M55 68 L60 90 L65 68Z',c2)+P('M55 68 L60 90 L52 80Z',shade(c1,.14))+P('M65 68 L60 90 L68 80Z',shade(c1,.14))+btn(60,99)+btn(60,109)+P('M68 84 L72.5 84 L72 86.6 L68.4 86.6Z',c3)};
+  }
+}
+function dollSVG(look,weapon,view='0 0 120 200'){
+  const k={...BASE_LOOK,...look};
+  const s=k.skin,h=k.hairColor,o=outfitParts(k);
+  const hand=k.extra==='gloves'?k.extraColor:s;
+  const shoes=o.boots?P('M48 150 L58 150 L58 178 Q64 181 64 186 L48 186Z','#231c1c')+P('M61 150 L71 150 L71 178 Q77 181 77 186 L61 186Z','#2b2222'):P('M48 178 L58 178 Q64 181 64 186 L48 186Z','#231c1c')+P('M61 178 L71 178 Q77 181 77 186 L61 186Z','#2b2222');
+  const legs=o.hideLegs?'':`<rect x="49" y="120" width="9.5" height="60" rx="3" fill="${shade(o.pants,-.12)}" stroke="${OL}" stroke-width="1.4"/><rect x="61.5" y="120" width="9.5" height="60" rx="3" fill="${o.pants}" stroke="${OL}" stroke-width="1.4"/>`;
+  const sleeveB=o.wide?P('M42 72 L53 72 L56 113 L39 113Z',shade(o.sleeve,-.18)):`<rect x="43" y="72" width="10" height="44" rx="5" fill="${shade(o.sleeve,-.18)}" stroke="${OL}" stroke-width="1.4"/>`;
+  const sleeveF=o.wide?P('M66 72 L77 72 L81 113 L64 113Z',o.sleeve):`<rect x="67" y="72" width="10" height="44" rx="5" fill="${o.sleeve}" stroke="${OL}" stroke-width="1.4"/>`;
+  const armband=k.extra==='armband'?`<rect x="66.6" y="83" width="10.8" height="5" fill="${k.extraColor}" stroke="${OL}" stroke-width="1"/>`:'';
+  const w=WEAPONS[weapon]?WEAPONS[weapon](k.c3):'';
+  const mask=k.extra==='mask'?P('M47 50 Q60 48 73 50 L72 58 Q60 64 48 58Z',k.extraColor):'';
+  const earring=k.extra==='earring'?`<circle cx="75.6" cy="52.4" r="1.9" fill="${k.extraColor}" stroke="${OL}" stroke-width=".8"/>`:'';
+  const hb=HAIR_BACK[k.hair]?HAIR_BACK[k.hair](h):'';
+  const hf=(HAIR_FRONT[k.hair]||HAIR_FRONT.crop)(h);
+  // Chibi proportions: the head layer is drawn 1.85× and dropped onto the shoulders,
+  // the body layer is squashed to a short, stubby frame standing on the same feet.
+  const HEAD='transform="translate(60 84) scale(1.85) translate(-60 -44)"';
+  const BODY='transform="translate(60 188) scale(.95 .62) translate(-60 -188)"';
+  const eye=x=>`<g transform="translate(${x} 47) scale(1.3) translate(${-x} -46)">${(EYES[k.eyes]||EYES.round)(x,k.eyeColor,s)}</g>`;
+  const handB=`<ellipse cx="48" cy="117" rx="4.8" ry="7.4" fill="${shade(hand,-.12)}" stroke="${OL}" stroke-width="1.3"/>`;
+  const handF=`<ellipse cx="72" cy="117" rx="4.8" ry="7.4" fill="${hand}" stroke="${OL}" stroke-width="1.3"/>`;
+  return `<svg viewBox="${view}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <ellipse cx="60" cy="191" rx="30" ry="5" fill="#000" opacity=".35"/>
+  <g class="body">
+    <g ${BODY}>${(BACKWEAR[k.back]||BACKWEAR.none)(k.backColor)}${o.back||''}</g>
+    <g ${HEAD}>${hb}</g>
+    <g ${BODY}>
+      <g class="armB">${sleeveB}${handB}</g>
+      ${legs}${shoes}
+      <rect x="55" y="55" width="10" height="15" fill="${shade(s,-.12)}" stroke="${OL}" stroke-width="1.3"/>
+      ${o.torso}
+      ${(NECKWEAR[k.neck]||NECKWEAR.none)(k.neckColor)}
+    </g>
+    <g ${HEAD}>
+      <ellipse cx="45" cy="47" rx="2.6" ry="4" fill="${s}" stroke="${OL}" stroke-width="1"/><ellipse cx="75" cy="47" rx="2.6" ry="4" fill="${s}" stroke="${OL}" stroke-width="1"/>
+      <ellipse cx="60" cy="44" rx="15.5" ry="16.5" fill="${s}" stroke="${OL}" stroke-width="1.1"/>
+      ${(MARKS[k.mark]||MARKS.none)(s)}
+      ${eye(54)}${eye(66)}
+      ${(BROWS[k.brows]||BROWS.flat)(shade(h,-.25))}
+      ${(MOUTHS[k.mouth]||MOUTHS.line)()}
+      ${mask}${earring}${hf}
+      ${(HATS[k.hat]||HATS.none)(k.hatColor)}
+      ${(EYEWEAR[k.eyewear]||EYEWEAR.none)(k.ewColor)}
+    </g>
+    <g ${BODY}><g class="armF">${sleeveF}${armband}${w}${handF}</g></g>
+  </g></svg>`;
+}
+
+/* ---------- wardrobe ---------- */
+const W_OPTS={
+  hair:[['buzz','Buzz'],['crop','Crop'],['sidepart','Side part'],['messy','Messy'],['spiky','Spiky'],['slick','Slicked'],['undercut','Undercut'],['mohawk','Mohawk'],['curly','Curly'],['afro','Afro'],['bob','Bob'],['hime','Hime'],['long','Long'],['wavy','Wavy'],['ponytail','Ponytail'],['twintails','Twin tails'],['bun','Bun'],['braid','Braid'],['bald','Bald']],
+  eyes:[['round','Round'],['wide','Wide'],['sharp','Sharp'],['sleepy','Sleepy'],['narrow','Narrow'],['closed','Closed'],['lashes','Lashes'],['tired','Tired'],['glare','Glare'],['dot','Dot']],
+  brows:[['flat','Flat'],['arched','Arched'],['angry','Angry'],['worried','Worried'],['thick','Thick'],['none','None']],
+  mouth:[['line','Neutral'],['smile','Smile'],['frown','Frown'],['smirk','Smirk'],['open','Open'],['teeth','Grin'],['small','Small'],['scowl','Scowl']],
+  mark:[['none','None'],['scar','Scar'],['freckles','Freckles'],['blush','Blush'],['stitch','Stitches'],['paint','War paint']],
+  outfit:[['blazer','Suit'],['trench','Trench coat'],['hoodie','Hoodie'],['vest','Waistcoat'],['overalls','Overalls'],['robe','Robe'],['military','Officer coat'],['jumpsuit','Jumpsuit'],['dress','Dress suit']],
+  hat:[['none','None'],['fedora','Fedora'],['beanie','Beanie'],['cap','Cap'],['tophat','Top hat'],['beret','Beret'],['bandana','Bandana'],['headband','Headband'],['horns','Horns'],['halo','Halo']],
+  eyewear:[['none','None'],['round','Round glasses'],['square','Square glasses'],['shades','Shades'],['monocle','Monocle'],['eyepatch','Eyepatch'],['visor','Visor']],
+  neck:[['none','None'],['tie','Tie'],['bowtie','Bow tie'],['scarf','Scarf'],['choker','Choker'],['cravat','Cravat']],
+  back:[['none','None'],['cape','Cape'],['halfcape','Half cape'],['scabbard','Scabbard'],['backpack','Backpack']],
+  extra:[['none','None'],['mask','Face mask'],['earring','Earring'],['armband','Armband'],['gloves','Gloves']],
+};
+const SWATCH={
+  skin:['#f6dcc6','#efc9a8','#e2b08a','#c98e66','#a96f4c','#86523a','#5e3a2a','#3f271d','#cfd8dc','#9bb89a'],
+  hair:['#151112','#3a2a20','#6b4428','#a8672e','#d9b26a','#efe1b5','#b8b2ad','#f2f0ec','#8b2b2b','#c4473a','#5b3a8c','#3d6fa8','#3f8a6a','#e087b0'],
+  eye:['#3d2a1f','#6b4428','#3d6b5c','#4a5fa8','#7a8a99','#9a3b3b','#c9a23a','#7d5ba6','#e3813a'],
+  cloth:['#1b1a20','#2f3340','#44546a','#3d4a3a','#5a2a24','#7c2f2a','#6b5a2e','#8a6b3a','#d9d0c0','#efe8dc','#c4473a','#d6a64f','#4fa8a2','#7d5ba6','#b85c7a','#f4f1ec'],
+};
+const wardrobe={char:'vesna',sec:'face',pose:'idle'};
+const curLook=()=>save.looks[wardrobe.char];
+function swatchRow(key,pal){
+  const v=(curLook()[key]||'#000000').toLowerCase();
+  return `<div class="swatches">${SWATCH[pal].map(c=>`<button type="button" class="sw ${c.toLowerCase()===v?'on':''}" style="background:${c}" data-act="wsw" data-k="${key}" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}
+    <label class="cpick" title="Any color"><input type="color" id="w-col-${key}" data-wk="${key}" value="${v}"><span>Custom</span></label></div>`;
+}
+function chipRow(key){
+  const v=curLook()[key];
+  return `<div class="chips">${W_OPTS[key].map(([id,l])=>`<button type="button" class="chipbtn ${v===id?'on':''}" data-act="wopt" data-k="${key}" data-v="${id}" aria-pressed="${v===id}">${l}</button>`).join('')}</div>`;
+}
+function thumbGrid(key,view){
+  const lkObj=curLook(),w=CHARS[wardrobe.char].weapon;
+  return `<div class="opt-grid">${W_OPTS[key].map(([id,l])=>`<button type="button" class="opt ${lkObj[key]===id?'on':''}" data-act="wopt" data-k="${key}" data-v="${id}" aria-pressed="${lkObj[key]===id}">${dollSVG({...lkObj,[key]:id,...(key==='hair'?{hat:'none'}:{})},key==='outfit'?w:'',view)}<span>${l}</span></button>`).join('')}</div>`;
+}
+function wdField(label,inner){return `<div class="wd-field"><h4>${label}</h4>${inner}</div>`}
+function viewWardrobe(){
+  const c=wardrobe.char,sec=wardrobe.sec;
+  let body='';
+  if(sec==='face')body=wdField('Skin tone',swatchRow('skin','skin'))+wdField('Eyes',chipRow('eyes'))+wdField('Eye color',swatchRow('eyeColor','eye'))+wdField('Brows',chipRow('brows'))+wdField('Mouth',chipRow('mouth'))+wdField('Face marks',chipRow('mark'));
+  else if(sec==='hair')body=wdField('Hairstyle',thumbGrid('hair','16 24 88 88'))+wdField('Hair color',swatchRow('hairColor','hair'));
+  else if(sec==='outfit')body=wdField('Outfit',thumbGrid('outfit','4 36 112 158'))+wdField('Primary color',swatchRow('c1','cloth'))+wdField('Secondary color',swatchRow('c2','cloth'))+wdField('Accent color',swatchRow('c3','cloth'));
+  else body=[['hat','Headwear','hatColor'],['eyewear','Eyewear','ewColor'],['neck','Neckwear','neckColor'],['back','Back','backColor'],['extra','Extras','extraColor']].map(([k,l,ck])=>wdField(l,chipRow(k)+(curLook()[k]!=='none'?swatchRow(ck,'cloth'):''))).join('');
+  const poses=[['idle','Idle'],['ready','Ready'],['attack','Attack'],['hit','Hit'],['guard','Guard'],['down','Down']];
+  return `<section class="wardrobe">
+  <div class="sec-head"><p class="eyebrow">Wardrobe</p><h1 class="h-sec">Dress the squad</h1>
+  <p class="lede">Pick hair, faces, outfits and accessories, and color every piece. Looks are saved per fighter and show up in combat.</p></div>
+  <div class="fchars" role="tablist" aria-label="Fighter">${CHAR_IDS.map(id=>`<button role="tab" aria-selected="${id===c}" class="fchar ${id===c?'on':''}" style="--hue:var(--c-${id})" data-act="wchar" data-c="${id}"><i></i><span>${CHARS[id].short}</span></button>`).join('')}</div>
+  <div class="wd-grid">
+    <div class="panel wd-preview">
+      <div class="wd-stage"><div class="doll ${wardrobe.pose==='idle'?'idle':''} pose-${wardrobe.pose}" id="wdDoll">${dollSVG(curLook(),CHARS[c].weapon)}</div></div>
+      <div class="chips" role="group" aria-label="Preview pose">${poses.map(([p,l])=>`<button type="button" class="chipbtn ${wardrobe.pose===p?'on':''}" data-act="wpose" data-v="${p}">${l}</button>`).join('')}</div>
+      <div class="ractions"><button type="button" class="btn ghost sm" data-act="wrand">Randomize</button><button type="button" class="btn ghost sm" data-act="wreset">Reset to default</button></div>
+    </div>
+    <div class="panel wd-opts">
+      <div class="subtabs" role="tablist">${[['face','Face'],['hair','Hair'],['outfit','Outfit'],['acc','Accessories']].map(([k,l])=>`<button role="tab" type="button" aria-selected="${sec===k}" class="${sec===k?'on':''}" data-act="wsec" data-v="${k}">${l}</button>`).join('')}</div>
+      ${body}
+    </div>
+  </div></section>`;
+}
+function updateWardrobePreview(){const d=$('#wdDoll');if(d)d.innerHTML=dollSVG(curLook(),CHARS[wardrobe.char].weapon)}
+function setLook(k,v){save.looks[wardrobe.char][k]=v;persist()}
+function randomLook(){
+  const l={};
+  for(const k of Object.keys(W_OPTS))l[k]=pick(W_OPTS[k])[0];
+  if(Math.random()<.5)l.hat='none';if(Math.random()<.6)l.eyewear='none';if(Math.random()<.4)l.back='none';
+  l.skin=pick(SWATCH.skin.slice(0,8));l.hairColor=pick(SWATCH.hair);l.eyeColor=pick(SWATCH.eye);
+  ['c1','c2','c3','hatColor','ewColor','neckColor','backColor','extraColor'].forEach(k=>l[k]=pick(SWATCH.cloth));
+  save.looks[wardrobe.char]={...BASE_LOOK,...l};persist();
+}
+
+
+/* ---------- header / routing ---------- */
+let view='contracts';
+function renderHeader(){
+  document.querySelectorAll('#nav button').forEach(b=>{b.classList.toggle('on',b.dataset.v===view);b.disabled=view==='battle'});
+  $('#tokens').innerHTML=CHAR_IDS.map(id=>`<span class="tok" style="--hue:var(--c-${id})" title="${CHARS[id].name}: ${save.tokens[id]} Character Tokens"><i></i>${CHARS[id].short}<b>${save.tokens[id]}</b></span>`).join('');
+}
+function go(v){view=v;render();window.scrollTo(0,0)}
+function render(){
+  renderHeader();
+  const el=$('#view');
+  if(view==='contracts')el.innerHTML=viewContracts();
+  else if(view==='roster')el.innerHTML=viewRoster();
+  else if(view==='wardrobe')el.innerHTML=viewWardrobe();
+  else if(view==='forge'){el.innerHTML=viewForge();afterForgeRender()}
+  else if(view==='battle'){el.innerHTML='';renderBattle()}
+}
+
+/* ---------- contracts ---------- */
+function foeSummary(list){const m={};list.forEach(id=>m[id]=(m[id]||0)+1);return Object.entries(m).map(([id,n])=>`${n>1?n+'× ':''}${ENEMIES[id].name}`).join(' · ')}
+function glossary(){
+  return `<details class="howto glossary"><summary>Status glossary</summary><dl>${STATUS_ORDER.map(k=>`<div><dt class="st-${k}">${STATUS[k].label}</dt><dd>${STATUS[k].info}</dd></div>`).join('')}
+    <div><dt class="st-shield">Shield</dt><dd>Absorbs damage from hits. Clears at the end of the turn.</dd></div></dl>
+    <p class="muted sm">Burn, Bleed, Tremor, Rupture, Sinking and Poise show as Potency·Count, for example “Burn 3·2”.</p></details>`;
+}
+function viewContracts(){
+  const tickets=STAGES.map((st,i)=>{
+    const cleared=!!save.cleared[st.id],locked=i>0&&!save.cleared[STAGES[i-1].id];
+    const rew=cleared?Math.ceil(st.reward/3):st.reward;
+    return `<article class="ticket ${locked?'locked':''}">
+      <div class="t-stub"><span class="t-no">No. ${String(i+1).padStart(3,'0')}</span><span class="t-rew"><b>${rew}</b>TKN</span></div>
+      <div class="t-body"><h3>${st.name}</h3><p>${st.blurb}</p><p class="t-foes">${foeSummary(st.enemies)}</p>
+      <div class="t-foot"><span>${cleared?`Replay · ${rew} tokens each`:`First clear · ${rew} tokens each`}</span>
+      <button class="btn ${cleared?'ghost':''}" data-act="start" data-stage="${i}" ${locked?'disabled':''}>${locked?'Locked':cleared?'Replay':'Take contract'}</button></div></div>
+      ${cleared?'<span class="stamp" aria-label="Cleared">PAID</span>':''}
+    </article>`;
+  }).join('');
+  const night=`<article class="ticket night">
+    <div class="t-stub"><span class="t-no">Night Shift</span><span class="t-rew"><b>${3+save.streak}</b>TKN</span></div>
+    <div class="t-body"><h3>Night Shift</h3><p>Endless random fights that get harder every hour. A loss ends the shift. Bosses show up every fifth hour.</p>
+    <p class="t-foes">Current hour ${save.streak+1} · Best run ${save.best} hour${save.best===1?'':'s'}</p>
+    <div class="t-foot"><span>${3+save.streak} tokens each per win</span><button class="btn" data-act="night">${save.streak?'Continue shift':'Clock in'}</button></div></div>
+  </article>`;
+  return `<section class="intro">
+    <div><p class="eyebrow">Turn-based clash combat</p><h1>Win the clash. Forge what you earn.</h1>
+    <p class="lede">Take contracts on the pier and bring home Character Tokens for every fighter you fielded. Spend them in the Skill Forge on skills, unique statuses and passives, and dress your squad in the Wardrobe.</p></div>
+    <div class="intro-side">
+    <details class="howto" ${save.wins?'':'open'}><summary>How a turn works</summary><ol>
+      <li><b>Everyone rolls a speed die.</b> Enemies show which skill they’ll use and who they’re aiming at.</li>
+      <li><b>Pick a skill and a target</b> for each fighter. Two skills from their loadout are dealt each turn, plus Brace.</li>
+      <li><b>Clash</b> happens when you aim at an enemy whose attack targets you, or when you’re faster than that enemy’s die. Otherwise attacks land unopposed.</li>
+      <li><b>In a clash</b> both sides flip their coins: base power plus heads × coin power. The higher total breaks one of the loser’s coins. The winner hits with whatever coins remain.</li>
+      <li><b>Sanity</b> raises your heads chance. Winning clashes and finishing enemies builds it.</li>
+      <li><b>Stagger</b> enemies by pushing HP past the brass marks on their bar. Staggered units skip a turn and take double damage.</li>
+    </ol></details>${glossary()}</div>
+  </section>
+  <div class="teambar"><span class="lbl">Fielding</span>${save.team.map(id=>`<span class="chip" style="--hue:var(--c-${id})"><i></i>${CHARS[id].short}</span>`).join('')}<button class="btn ghost sm" data-act="go" data-v="roster">Change team</button></div>
+  <section class="tickets" aria-label="Contracts">${tickets}${night}</section>`;
+}
+
+/* ---------- roster ---------- */
+function viewRoster(){
+  return `<section><div class="sec-head"><p class="eyebrow">Roster</p><h1 class="h-sec">Choose who takes the contract</h1>
+  <p class="lede">Field one to three fighters. Each fielded fighter earns their own Character Tokens: full reward if they’re standing at the end, half if they went down.</p></div>
+  <div class="roster">${CHAR_IDS.map(id=>{const c=CHARS[id],on=save.team.includes(id);
+    const dis=(on&&save.team.length<=1)||(!on&&save.team.length>=3);
+    const pas=save.passEq[id].map(pid=>save.passives[pid]).filter(Boolean);
+    return `<article class="rcard ${on?'on':''}" style="--hue:var(--c-${id})">
+      <header><div class="portrait">${dollSVG(save.looks[id],c.weapon,'22 34 76 84')}</div><div><h3>${c.name}</h3><p class="role">${c.role}</p></div><span class="tokbig"><b>${save.tokens[id]}</b>tokens</span></header>
+      <p>${c.bio}</p>
+      <dl class="stats"><div><dt>HP</dt><dd>${c.hp}</dd></div><div><dt>Speed</dt><dd>${c.spd[0]}–${c.spd[1]}</dd></div>${['slash','pierce','blunt'].map(k=>`<div><dt>${TYPES[k]}</dt><dd class="${c.res[k]>1?'weak':c.res[k]<1?'tough':''}">×${c.res[k]}</dd></div>`).join('')}</dl>
+      <div class="mini-skills">${save.loadout[id].map(getSkill).filter(Boolean).map(s=>skillCard(s,{cls:'mini'})).join('')}</div>
+      <div class="pas-list">${pas.length?pas.map(p=>`<span class="pas-chip" title="${esc(passiveText(p))}">◈ ${esc(p.name)}</span>`).join(''):'<span class="muted sm">No passives equipped. Unlock them in the Skill Forge.</span>'}</div>
+      <div class="ractions"><button class="btn ${on?'ghost':''}" data-act="field" data-c="${id}" ${dis?'disabled':''} title="${dis&&!on?'Bench someone first: three is the limit':''}">${on?'Bench':'Field'}</button><button class="btn ghost" data-act="forgefor" data-c="${id}">Forge</button><button class="btn ghost" data-act="dressfor" data-c="${id}">Wardrobe</button></div>
+    </article>`}).join('')}</div>
+  <div class="danger-zone"><button class="btn ghost danger sm" data-act="reset">Reset all progress</button><span class="muted sm">Progress is saved in this browser only.</span></div></section>`;
+}
+function toggleTeam(id){
+  const i=save.team.indexOf(id);
+  if(i>=0){if(save.team.length>1)save.team.splice(i,1)}else if(save.team.length<3)save.team.push(id);
+  persist();render();
+}
+
+/* ---------- forge: shared ---------- */
+const forge={char:'vesna',tab:'skills',pending:null,pendingCs:null,pendingP:null};
+let draft={name:'',type:'slash',base:5,coins:2,coinPow:3,effects:[{trig:'hit',eff:'bleed',amt:1}]};
+let csDraft={name:'',glyph:'✦',color:'#9fd1a8',pol:'debuff',trig:'turnEnd',eff:'dmg',str:1,decay:'one'};
+let pDraft={name:'',trig:'turnEnd',eff:'heal',amt:3,status:null};
+const NAME_A=['Rusted','Lantern','Tithe','Gallows','Low-Tide','Brass','Ledger','Ember','Hollow','Ninth-Pier','Saltworn','Bilgewater','Debtor’s','Quiet','Anchor'];
+const NAME_B=['Rend','Toll','Hook','Verdict','Litany','Stitch','Breaker','Reckoning','Notice','Undertow','Sermon','Collection','Tally','Waltz','Severance'];
+const randName=()=>`${pick(NAME_A)} ${pick(NAME_B)}`;
+const ST_NAME_A=['Salt','Rust','Tide','Ash','Gutter','Brine','Hollow','Lantern','Wick','Anchor'];
+const ST_NAME_B=['Rot','Chill','Fever','Grace','Brand','Ward','Hex','Mark','Pulse','Debt'];
+function viewForge(){
+  const c=forge.char,t=forge.tab;
+  const titles={skills:['Build a skill','Spend a fighter’s Character Tokens on a skill only they can use. Each fighter equips up to four; two are dealt into their hand every turn.'],
+    statuses:['Invent a status','Design a status effect of your own, then add it to this fighter’s skills like any other effect. Creating it costs a one-time fee; each stack added to a skill costs extra.'],
+    passives:['Unlock a passive','Passives work on their own every fight. Each fighter can equip two.']};
+  return `<section class="forge">
+  <div class="sec-head"><p class="eyebrow">Skill Forge</p><h1 class="h-sec">${titles[t][0]}</h1><p class="lede">${titles[t][1]}</p></div>
+  <div class="fchars" role="tablist" aria-label="Fighter">${CHAR_IDS.map(id=>`<button role="tab" aria-selected="${id===c}" class="fchar ${id===c?'on':''}" style="--hue:var(--c-${id})" data-act="fchar" data-c="${id}"><i></i><span>${CHARS[id].short}</span><b>${save.tokens[id]}</b></button>`).join('')}</div>
+  <div class="subtabs big" role="tablist">${[['skills','Skills'],['statuses','Unique statuses'],['passives','Passives']].map(([k,l])=>`<button type="button" role="tab" aria-selected="${t===k}" class="${t===k?'on':''}" data-act="ftab" data-v="${k}">${l}</button>`).join('')}</div>
+  ${t==='skills'?forgeSkillsHTML():t==='statuses'?forgeStatusHTML():forgePassiveHTML()}
+  </section>`;
+}
+function afterForgeRender(){
+  if(forge.tab==='skills'){normalizeDraft();renderFxList();updateForgePreview()}
+  else if(forge.tab==='statuses'){updateCsPreview()}
+  else updatePPreview();
+}
+
+/* ---------- forge: skills ---------- */
+function forgeSkillsHTML(){
+  return `<div class="forge-grid">
+    <form class="panel forge-form" id="forgeForm" autocomplete="off">
+      <div><label class="fl" for="f-name">Skill name</label>
+        <div class="inline"><input type="text" id="f-name" maxlength="28" placeholder="e.g. ${randName()}" value="${esc(draft.name)}"><button type="button" class="btn ghost sm" data-act="randname">Roll a name</button></div></div>
+      <fieldset style="border:0;padding:0;margin:0"><legend class="fl" style="width:100%">Damage type</legend>
+        <div class="seg">${Object.entries(TYPES).map(([k,l])=>`<label class="segopt t-${k}"><input type="radio" name="f-type" id="f-type-${k}" value="${k}" ${draft.type===k?'checked':''}><span>${l}</span></label>`).join('')}</div>
+        <p class="type-help" id="typeHelp">${TYPE_HELP[draft.type]}</p></fieldset>
+      <div class="sliders">
+        <div><label class="fl" for="f-base">Base power <output id="o-base">${draft.base}</output></label><input type="range" id="f-base" min="1" max="12" value="${draft.base}"><div class="range-scale"><span>1</span><span>12</span></div></div>
+        <div><label class="fl" for="f-coins">Coins <output id="o-coins">${draft.coins}</output></label><input type="range" id="f-coins" min="1" max="5" value="${draft.coins}"><div class="range-scale"><span>1</span><span>5</span></div></div>
+        <div><label class="fl" for="f-cp">Coin power <output id="o-cp">${sgn(draft.coinPow)}</output></label><input type="range" id="f-cp" min="-3" max="6" value="${draft.coinPow}"><div class="range-scale"><span>−3</span><span>+6</span></div></div>
+      </div>
+      <div><div class="fx-head"><h4>Effects</h4><span class="muted sm">up to 4 · trigger → effect → amount</span></div>
+        <div id="fxList"></div>
+        <button type="button" class="btn ghost sm" data-act="addfx" id="addFx">Add effect</button></div>
+    </form>
+    <aside class="panel forge-preview" id="forgePreview" aria-live="polite"></aside>
+  </div>
+  <section class="library" id="library"></section>`;
+}
+function draftSkill(){return{id:'draft',name:draft.name.trim()||'Unnamed skill',type:draft.type,base:+draft.base,coins:+draft.coins,coinPow:+draft.coinPow,effects:draft.effects.map(f=>({trig:f.trig,eff:f.eff,amt:+f.amt}))}}
+function effAllowed(key,guard,trig){
+  const e=effDef(key);if(!e)return false;
+  if(e.owner&&e.owner!==forge.char)return false;
+  if(e.on==='target'&&(guard||TRIGGERS[trig].selfOnly))return false;
+  return true;
+}
+function normalizeDraft(){
+  draft.effects.forEach(f=>{
+    if(draft.type==='guard'&&!TRIGGERS[f.trig].pre)f.trig='use';
+    if(!effAllowed(f.eff,draft.type==='guard',f.trig))f.eff=effAllowed(CHARS[forge.char].sig,draft.type==='guard',f.trig)?CHARS[forge.char].sig:'sanity';
+    f.amt=clamp(f.amt,1,effDef(f.eff).max);
+  });
+}
+function trigOptions(cur,guard){
+  return TRIG_GROUPS.map(g=>{const ks=Object.keys(TRIGGERS).filter(k=>TRIGGERS[k].group===g&&(!guard||TRIGGERS[k].pre));
+    return ks.length?`<optgroup label="${g}">${ks.map(k=>`<option value="${k}" ${cur===k?'selected':''}>${TRIGGERS[k].label}</option>`).join('')}</optgroup>`:''}).join('');
+}
+function effOptions(cur,guard,trig){
+  const groups=EFFECT_GROUPS.map(([kind,label])=>[label,Object.keys(EFFECTS).filter(k=>EFFECTS[k].kind===kind&&effAllowed(k,guard,trig))]);
+  const mine=Object.values(save.statuses).filter(d=>d.owner===forge.char).map(d=>'cs_'+d.id).filter(k=>effAllowed(k,guard,trig));
+  if(mine.length)groups.unshift([`${CHARS[forge.char].short}’s unique statuses`,mine]);
+  return groups.map(([label,ks])=>ks.length?`<optgroup label="${esc(label)}">${ks.map(k=>`<option value="${k}" ${cur===k?'selected':''}>${esc(effDef(k).label)}</option>`).join('')}</optgroup>`:'').join('');
+}
+function effInfo(key){
+  const e=effDef(key);if(!e)return'';
+  if(e.cs)return csDescribe(save.statuses[e.cs]);
+  if(e.st)return `${STATUS[e.st].label}: ${STATUS[e.st].info}`;
+  if(key==='burst')return STATUS.tremor.info;
+  return DRAWBACK_INFO[key]||'';
+}
+function renderFxList(){
+  const el=$('#fxList');if(!el)return;
+  const guard=draft.type==='guard';
+  el.innerHTML=draft.effects.length?draft.effects.map((f,i)=>{
+    const E=effDef(f.eff),T=TRIGGERS[f.trig];
+    const val=E.cost*f.amt*T.mult(draft.coins);
+    const rate=T.per?`×${T.mult(1)} per coin (×${r1(T.mult(draft.coins))} on ${draft.coins} coin${draft.coins>1?'s':''})`:`×${T.mult(1)}`;
+    return `<div class="fx-row ${E.kind==='drawback'?'drawback':''}">
+      <select id="fx-trig-${i}" data-fx="${i}" data-k="trig" aria-label="Trigger ${i+1}">${trigOptions(f.trig,guard)}</select>
+      <select id="fx-eff-${i}" data-fx="${i}" data-k="eff" aria-label="Effect ${i+1}">${effOptions(f.eff,guard,f.trig)}</select>
+      <div class="stepper"><button type="button" data-act="fxamt" data-fx="${i}" data-d="-1" aria-label="Lower amount" ${f.amt<=1?'disabled':''}>−</button><span>${f.amt}</span><button type="button" data-act="fxamt" data-fx="${i}" data-d="1" aria-label="Raise amount" ${f.amt>=E.max?'disabled':''}>+</button></div>
+      <button type="button" class="linkbtn" data-act="rmfx" data-fx="${i}">Remove</button>
+      <p class="fx-desc"><b>${T.label}:</b> ${esc(E.txt(f.amt))}, ${T.help}. ${esc(effInfo(f.eff))}
+        <span class="fx-cost">Trigger rate ${rate} · ${val<0?`refunds ${r1(-val)}`:`costs ${r1(val)}`} tokens</span></p>
+    </div>`}).join(''):`<p class="muted" style="margin:0">No effects yet. Conditional triggers cost less than On Use because they don’t always fire. Drawbacks hurt the user but refund tokens.</p>`;
+  const add=$('#addFx');if(add)add.disabled=draft.effects.length>=4;
+}
+function updateForgePreview(){
+  const pv=$('#forgePreview');if(!pv)return;
+  $('#o-base').textContent=draft.base;$('#o-coins').textContent=draft.coins;$('#o-cp').textContent=sgn(+draft.coinPow);
+  const s=draftSkill(),cs=costSummary(s),cost=cs.total,bal=save.tokens[forge.char],[lo,hi]=skillRange(s),cn=CHARS[forge.char].short;
+  const avg=(s.base+s.coins*s.coinPow*.5);
+  pv.innerHTML=`<p class="eyebrow">Preview · ${cn}</p>${skillCard(s,{cls:'big'})}
+    <dl class="pv-stats"><div><dt>Clash range</dt><dd>${lo}–${hi}</dd></div><div><dt>Avg roll</dt><dd>${Math.max(0,avg).toFixed(1)}</dd></div><div><dt>Best hit total</dt><dd>${s.type==='guard'?'—':maxHit(s)}</dd></div></dl>
+    <div class="cost"><h4>Token cost</h4><ul>${cs.parts.length?cs.parts.map(([l,v])=>`<li class="${v<0?'neg':''}"><span>${esc(l)}</span><b>${v>0?'+':''}${r1(v)}</b></li>`).join(''):'<li><span>Starter frame</span><b>+3</b></li>'}</ul>
+    ${cs.capped?`<p class="note" style="margin-top:6px">Refunds capped at 40% of the skill’s cost (−${r1(-cs.N)} counted as −${r1(.4*cs.P)}).</p>`:''}
+    <div class="cost-total"><span>Total${cs.raw<3?' (minimum 3)':''}</span><b>${cost}</b></div><div class="cost-bal"><span>${cn} has</span><b>${bal}</b></div></div>
+    <button type="button" class="btn big wide" data-act="forge" ${bal<cost?'disabled':''}>Forge for ${cost} tokens</button>
+    ${bal<cost?`<p class="note">${cn} needs ${cost-bal} more. Field ${cn} in contracts to earn them, or trim the build.</p>`:''}`;
+  renderLibrary();
+}
+function renderLibrary(){
+  const el=$('#library');if(!el)return;
+  const c=forge.char,lo=save.loadout[c];
+  const skills=[...CHARS[c].base.map(id=>SK[id]),...Object.values(save.customs).filter(s=>s.owner===c)];
+  el.innerHTML=`<div class="lib-head"><h2 class="h-sub">${CHARS[c].short}’s skills</h2><span class="pill">Loadout ${lo.length}/4</span><span class="muted sm">Equipped skills are dealt into ${CHARS[c].short}’s hand in combat.</span></div>
+  <div class="lib">${skills.map(s=>{const eq=lo.includes(s.id),pend=forge.pending===s.id;
+    const dis=(!eq&&lo.length>=4)||(eq&&lo.length<=1);
+    return `<div class="lib-item ${eq?'eq':''}">${skillCard(s)}<div class="lib-actions">
+      <button type="button" class="btn sm ${eq?'ghost':''}" data-act="equip" data-id="${s.id}" ${dis?'disabled':''}>${eq?'Unequip':'Equip'}</button>
+      ${s.custom?`<button type="button" class="btn sm ghost" data-act="rework" data-id="${s.id}">Rework</button><button type="button" class="btn sm ghost danger" data-act="dismantle" data-id="${s.id}">${pend?`Confirm · refund ${Math.floor(s.cost/2)}`:'Dismantle'}</button>`:'<span class="muted sm">Starter</span>'}
+      ${eq?'<span class="eqmark">Equipped</span>':''}
+    </div></div>`}).join('')}</div>`;
+}
+function doForge(){
+  const s=draftSkill();if(!draft.name.trim())s.name=randName();
+  const c=forge.char,cost=skillCost(s);if(save.tokens[c]<cost)return;
+  save.tokens[c]-=cost;
+  const id=newId('c');
+  save.customs[id]={...s,id,owner:c,cost,custom:true};
+  const eq=save.loadout[c].length<4;if(eq)save.loadout[c].push(id);
+  persist();draft.name='';render();
+  toast(`${CHARS[c].short} forged ${s.name}${eq?' and equipped it':'. Loadout is full, so unequip something to use it'}.`);
+}
+function toggleEquip(id){
+  const lo=save.loadout[forge.char],i=lo.indexOf(id);
+  if(i>=0){if(lo.length>1)lo.splice(i,1)}else if(lo.length<4)lo.push(id);
+  persist();renderLibrary();
+}
+function doDismantle(id){
+  if(forge.pending!==id){forge.pending=id;renderLibrary();return}
+  const s=save.customs[id];if(!s)return;
+  const refund=Math.floor(s.cost/2);save.tokens[s.owner]+=refund;delete save.customs[id];
+  const lo=save.loadout[s.owner],i=lo.indexOf(id);if(i>=0)lo.splice(i,1);
+  if(!lo.length)lo.push(CHARS[s.owner].base[0]);
+  forge.pending=null;persist();render();toast(`Dismantled ${s.name}. Refunded ${refund} tokens.`);
+}
+function reworkSkill(id){
+  const s=getSkill(id);if(!s)return;
+  draft={name:(s.name.length<25?s.name+' II':s.name),type:s.type,base:s.base,coins:s.coins,coinPow:s.coinPow,effects:s.effects.map(f=>({...f}))};
+  render();window.scrollTo({top:0,behavior:'smooth'});toast('Loaded into the forge. Forging makes a new copy.');
+}
+
+/* ---------- forge: unique statuses ---------- */
+function csValidEffs(){return Object.keys(CS_EFF).filter(k=>{const E=CS_EFF[k];return(E.pol==='both'||E.pol===csDraft.pol)&&(csDraft.trig==='while'?E.only==='while':!E.only)})}
+function csValidDecays(){return Object.keys(CS_DECAY).filter(k=>csDraft.trig==='while'?!CS_DECAY[k].trig:true)}
+function normalizeCS(){
+  if(!csValidEffs().includes(csDraft.eff))csDraft.eff=csValidEffs()[0];
+  if(!csValidDecays().includes(csDraft.decay))csDraft.decay=csValidDecays()[0];
+}
+function csUsage(id){
+  const key='cs_'+id;
+  return Object.values(save.customs).filter(s=>s.effects.some(f=>f.eff===key)).length+Object.values(save.passives).filter(p=>p.status===key).length;
+}
+function forgeStatusHTML(){
+  normalizeCS();
+  const d=csDraft;
+  return `<div class="forge-grid">
+    <form class="panel forge-form" id="csForm" autocomplete="off">
+      <div><label class="fl" for="f-cs-name">Status name</label>
+        <div class="inline"><input type="text" id="f-cs-name" maxlength="18" placeholder="e.g. ${pick(ST_NAME_A)} ${pick(ST_NAME_B)}" value="${esc(d.name)}"><button type="button" class="btn ghost sm" data-act="csrand">Roll a name</button></div></div>
+      <div><span class="fl">Icon</span><div class="chips">${CS_GLYPHS.map(g=>`<button type="button" class="chipbtn glyph ${d.glyph===g?'on':''}" data-act="csglyph" data-v="${g}" aria-pressed="${d.glyph===g}">${g}</button>`).join('')}</div></div>
+      <div><span class="fl">Color</span><div class="swatches">${CS_COLORS.map(c=>`<button type="button" class="sw ${c===d.color?'on':''}" style="background:${c}" data-act="cscolor" data-c="${c}" aria-label="Color ${c}"></button>`).join('')}<label class="cpick"><input type="color" id="f-cs-color" value="${d.color}"><span>Custom</span></label></div></div>
+      <fieldset style="border:0;padding:0;margin:0"><legend class="fl" style="width:100%">Kind</legend>
+        <div class="seg two"><label class="segopt t-slash"><input type="radio" name="f-cs-pol" value="debuff" ${d.pol==='debuff'?'checked':''}><span>Debuff · inflict on enemies</span></label><label class="segopt t-guard"><input type="radio" name="f-cs-pol" value="buff" ${d.pol==='buff'?'checked':''}><span>Buff · give to yourself</span></label></div></fieldset>
+      <div class="two-col">
+        <div><label class="fl" for="f-cs-trig">When it acts</label><select class="sel" id="f-cs-trig">${Object.entries(CS_TRIG).map(([k,v])=>`<option value="${k}" ${d.trig===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+        <div><label class="fl" for="f-cs-eff">What it does</label><select class="sel" id="f-cs-eff">${csValidEffs().map(k=>`<option value="${k}" ${d.eff===k?'selected':''}>${CS_EFF[k].label}</option>`).join('')}</select></div>
+        <div><label class="fl" for="f-cs-str">Strength per stack <output id="o-cs-str">${d.str}</output></label><input type="range" id="f-cs-str" min="1" max="3" value="${d.str}"><div class="range-scale"><span>1</span><span>3</span></div></div>
+        <div><label class="fl" for="f-cs-decay">How it fades</label><select class="sel" id="f-cs-decay">${csValidDecays().map(k=>`<option value="${k}" ${d.decay===k?'selected':''}>${CS_DECAY[k].label}</option>`).join('')}</select></div>
+      </div>
+    </form>
+    <aside class="panel forge-preview" id="csPreview" aria-live="polite"></aside>
+  </div>
+  <section class="library" id="csLib"></section>`;
+}
+function updateCsPreview(){
+  const pv=$('#csPreview');if(!pv)return;
+  const d={...csDraft,name:csDraft.name.trim()||'Unnamed status'};
+  const per=csPerStack(d),fee=csFee(d),bal=save.tokens[forge.char],cn=CHARS[forge.char].short;
+  const o=$('#o-cs-str');if(o)o.textContent=d.str;
+  pv.innerHTML=`<p class="eyebrow">Preview · ${cn}</p>
+    <div class="cs-card"><span class="cs-badge" style="--cc:${d.color}">${d.glyph}</span><div><b>${esc(d.name)}</b><span class="muted sm">${d.pol==='debuff'?'Debuff':'Buff'}</span></div></div>
+    <p class="cs-desc">${esc(csDescribe(d))}</p>
+    <div class="cost"><h4>Token cost</h4><ul><li><span>Each stack added to a skill</span><b>${per}</b></li><li><span>One-time creation fee</span><b>${fee}</b></li></ul>
+    <div class="cost-total"><span>Pay now</span><b>${fee}</b></div><div class="cost-bal"><span>${cn} has</span><b>${bal}</b></div></div>
+    <button type="button" class="btn big wide" data-act="cscreate" ${bal<fee?'disabled':''}>Create for ${fee} tokens</button>
+    ${bal<fee?`<p class="note">${cn} needs ${fee-bal} more.</p>`:`<p class="muted sm">After creating it, pick it from the effect list in ${cn}’s skills or passives.</p>`}`;
+  renderCsLib();
+}
+function renderCsLib(){
+  const el=$('#csLib');if(!el)return;const c=forge.char;
+  const list=Object.values(save.statuses).filter(d=>d.owner===c);
+  el.innerHTML=`<div class="lib-head"><h2 class="h-sub">${CHARS[c].short}’s unique statuses</h2><span class="pill">${list.length} made</span></div>
+  ${list.length?`<div class="lib">${list.map(d=>{const used=csUsage(d.id),pend=forge.pendingCs===d.id;return `<div class="lib-item">
+    <div class="cs-card"><span class="cs-badge" style="--cc:${d.color}">${d.glyph}</span><div><b>${esc(d.name)}</b><span class="muted sm">${d.pol==='debuff'?'Debuff':'Buff'} · ${d.perStack} per stack</span></div></div>
+    <p class="cs-desc sm">${esc(csDescribe(d))}</p>
+    <div class="lib-actions"><span class="muted sm">${used?`Used ${used}×`:'Not used yet'}</span><button type="button" class="btn sm ghost danger" data-act="csdel" data-id="${d.id}" ${used?'disabled title="Remove it from skills and passives first"':''}>${pend?`Confirm · refund ${Math.floor(d.fee/2)}`:'Dismantle'}</button></div>
+  </div>`}).join('')}</div>`:`<p class="muted">None yet. Try a debuff that drains HP at turn end, or a buff that grants Shield whenever ${CHARS[c].short} is hit.</p>`}`;
+}
+function createStatus(){
+  const c=forge.char,d={...csDraft,name:csDraft.name.trim()||`${pick(ST_NAME_A)} ${pick(ST_NAME_B)}`};
+  const fee=csFee(d);if(save.tokens[c]<fee)return;
+  save.tokens[c]-=fee;const id=newId('s');
+  save.statuses[id]={...d,id,owner:c,perStack:csPerStack(d),fee};
+  csDraft.name='';persist();render();toast(`Created ${d.name}. It’s now in ${CHARS[c].short}’s effect list.`);
+}
+function deleteStatus(id){
+  if(forge.pendingCs!==id){forge.pendingCs=id;renderCsLib();return}
+  const d=save.statuses[id];if(!d||csUsage(id))return;
+  save.tokens[d.owner]+=Math.floor(d.fee/2);delete save.statuses[id];forge.pendingCs=null;persist();render();toast(`Dismantled ${d.name}.`);
+}
+
+/* ---------- forge: passives ---------- */
+function normalizeP(){
+  if(pDraft.eff==='self'||pDraft.eff==='inflict'){
+    const opts=passiveStatusOptions(pDraft.eff,forge.char);
+    if(!opts.includes(pDraft.status))pDraft.status=opts[0];
+  }else pDraft.status=null;
+  pDraft.amt=clamp(pDraft.amt,1,P_EFF[pDraft.eff].max);
+}
+function forgePassiveHTML(){
+  normalizeP();
+  const d=pDraft,needS=d.eff==='self'||d.eff==='inflict';
+  return `<div class="forge-grid">
+    <form class="panel forge-form" id="pForm" autocomplete="off">
+      <div><label class="fl" for="f-p-name">Passive name (optional)</label><input type="text" id="f-p-name" maxlength="24" placeholder="e.g. Second Wind" value="${esc(d.name)}"></div>
+      <div class="two-col">
+        <div><label class="fl" for="f-p-trig">When</label><select class="sel" id="f-p-trig">${Object.entries(P_TRIG).map(([k,v])=>`<option value="${k}" ${d.trig===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+        <div><label class="fl" for="f-p-eff">Effect</label><select class="sel" id="f-p-eff">${Object.entries(P_EFF).map(([k,v])=>`<option value="${k}" ${d.eff===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
+        ${needS?`<div><label class="fl" for="f-p-status">Status</label><select class="sel" id="f-p-status">${passiveStatusOptions(d.eff,forge.char).map(k=>`<option value="${k}" ${d.status===k?'selected':''}>${esc(effDef(k).label)}</option>`).join('')}</select></div>`:''}
+        <div><span class="fl">Amount</span><div class="stepper wide"><button type="button" data-act="pamt" data-d="-1" aria-label="Lower amount" ${d.amt<=1?'disabled':''}>−</button><span>${d.amt}</span><button type="button" data-act="pamt" data-d="1" aria-label="Raise amount" ${d.amt>=P_EFF[d.eff].max?'disabled':''}>+</button></div></div>
+      </div>
+      <p class="muted sm" style="margin:0">Examples: Turn end · Recover Sanity 4. Turn end, while below half HP · Recover HP 6. When hit · Inflict Bleed 1 on the attacker.</p>
+    </form>
+    <aside class="panel forge-preview" id="pPreview" aria-live="polite"></aside>
+  </div>
+  <section class="library" id="pLib"></section>`;
+}
+function updatePPreview(){
+  const pv=$('#pPreview');if(!pv)return;
+  const p={...pDraft},cost=passiveCost(p),bal=save.tokens[forge.char],cn=CHARS[forge.char].short;
+  const name=p.name.trim()||'Unnamed passive';
+  pv.innerHTML=`<p class="eyebrow">Preview · ${cn}</p>
+    <div class="pas-card"><b>◈ ${esc(name)}</b><p>${esc(passiveText(p))}</p></div>
+    <div class="cost"><h4>Token cost</h4><ul><li><span>Base fee</span><b>4</b></li><li><span>Effect × amount × how often it fires</span><b>+${cost-4}</b></li></ul>
+    <div class="cost-total"><span>Total</span><b>${cost}</b></div><div class="cost-bal"><span>${cn} has</span><b>${bal}</b></div></div>
+    <button type="button" class="btn big wide" data-act="pcreate" ${bal<cost?'disabled':''}>Unlock for ${cost} tokens</button>
+    ${bal<cost?`<p class="note">${cn} needs ${cost-bal} more.</p>`:''}`;
+  renderPLib();
+}
+function renderPLib(){
+  const el=$('#pLib');if(!el)return;const c=forge.char,eq=save.passEq[c];
+  const list=Object.values(save.passives).filter(p=>p.owner===c);
+  el.innerHTML=`<div class="lib-head"><h2 class="h-sub">${CHARS[c].short}’s passives</h2><span class="pill">Equipped ${eq.length}/2</span></div>
+  ${list.length?`<div class="lib">${list.map(p=>{const on=eq.includes(p.id),pend=forge.pendingP===p.id;return `<div class="lib-item ${on?'eq':''}">
+    <div class="pas-card"><b>◈ ${esc(p.name)}</b><p>${esc(passiveText(p))}</p></div>
+    <div class="lib-actions"><button type="button" class="btn sm ${on?'ghost':''}" data-act="pequip" data-id="${p.id}" ${!on&&eq.length>=2?'disabled':''}>${on?'Unequip':'Equip'}</button><button type="button" class="btn sm ghost danger" data-act="pdel" data-id="${p.id}">${pend?`Confirm · refund ${Math.floor(p.cost/2)}`:'Dismantle'}</button>${on?'<span class="eqmark">Equipped</span>':''}</div>
+  </div>`}).join('')}</div>`:`<p class="muted">No passives yet.</p>`}`;
+}
+function createPassive(){
+  const c=forge.char,p={...pDraft},cost=passiveCost(p);if(save.tokens[c]<cost)return;
+  save.tokens[c]-=cost;const id=newId('p');
+  const name=p.name.trim()||`${P_TRIG[p.trig].label.split(',')[0]}: ${P_EFF[p.eff].label}`;
+  save.passives[id]={...p,id,owner:c,cost,name};
+  const eq=save.passEq[c].length<2;if(eq)save.passEq[c].push(id);
+  pDraft.name='';persist();render();toast(`Unlocked ${name}${eq?' and equipped it':''}.`);
+}
+function togglePassive(id){const eq=save.passEq[forge.char],i=eq.indexOf(id);if(i>=0)eq.splice(i,1);else if(eq.length<2)eq.push(id);persist();renderPLib()}
+function deletePassive(id){
+  if(forge.pendingP!==id){forge.pendingP=id;renderPLib();return}
+  const p=save.passives[id];if(!p)return;
+  save.tokens[p.owner]+=Math.floor(p.cost/2);delete save.passives[id];
+  const eq=save.passEq[p.owner],i=eq.indexOf(id);if(i>=0)eq.splice(i,1);
+  forge.pendingP=null;persist();render();toast(`Dismantled ${p.name}.`);
+}
+
+
+/* ---------- battle: setup ---------- */
+let B=null,uidN=0;
+function mkUnit(o){
+  const st={};STATUS_ORDER.forEach(k=>st[k]=0);
+  const cnt={};PC_KEYS.forEach(k=>cnt[k]=0);
+  return{uid:'u'+(uidN++),side:o.side,key:o.key,name:o.name,maxHp:o.hp,hp:o.hp,spd:o.spd,res:o.res,nd:o.nd||1,skills:o.skills,
+    staggerHP:o.stagger.map(f=>Math.round(o.hp*f)),staggerSpent:[],st,cnt,exp:{},cs:{},shield:0,sp:0,stag:false,stagUntil:-1,dice:[],
+    powBonus:o.powBonus||0,dead:false,look:o.look,weapon:o.weapon,scale:o.scale||1,passives:o.passives||[],slot:o.slot,_pose:''};
+}
+function genNight(s){
+  const pool=['rat','thug','acolyte','clerk','collector','fixer','cantor'];
+  const avail=pool.slice(0,Math.min(pool.length,3+s));
+  let n=Math.min(4,2+Math.floor(s/2));const list=[];
+  if((s+1)%5===0){list.push(pick(s>=9?['keeper','grinder','tollkeeper']:['keeper','grinder']));n=Math.max(1,n-2)}
+  for(let i=0;i<n;i++)list.push(pick(avail));
+  return list;
+}
+function startBattle(stage){
+  const night=stage==='night',lvl=night?save.streak:0;
+  const list=night?genNight(save.streak):STAGES[stage].enemies;
+  const allies=save.team.map((id,i)=>{const c=CHARS[id];return mkUnit({side:'ally',key:id,name:c.short,hp:c.hp,spd:c.spd,res:c.res,stagger:c.stagger,skills:save.loadout[id].filter(getSkill),
+    look:save.looks[id],weapon:c.weapon,passives:save.passEq[id].map(p=>save.passives[p]).filter(Boolean).map(p=>({...p})),slot:i})});
+  const counts={},seen={};list.forEach(id=>counts[id]=(counts[id]||0)+1);
+  const enemies=list.map((id,i)=>{const e=ENEMIES[id];seen[id]=(seen[id]||0)+1;
+    return mkUnit({side:'enemy',key:id,name:e.name+(counts[id]>1?' '+'ABCD'[seen[id]-1]:''),hp:Math.round(e.hp*(1+.1*lvl)),spd:e.spd,res:e.res,stagger:e.stagger,skills:e.skills,nd:e.dice||1,powBonus:Math.floor(lvl/3),look:e.look,weapon:e.weapon,scale:e.scale,slot:i})});
+  B={stage,night,lvl,name:night?`Night Shift · Hour ${save.streak+1}`:STAGES[stage].name,allies,enemies,turn:1,phase:'plan',log:[],plans:[],active:null,over:null,engs:[]};
+  view='battle';render();window.scrollTo(0,0);
+  B.allies.forEach(a=>firePassive(a,'start'));
+  startTurn();
+}
+const alive=l=>l.filter(u=>u.hp>0);
+const randomAlive=l=>{const a=alive(l);return a.length?pick(a):null};
+const canAct=u=>u.hp>0&&!u.stag;
+function changeSP(u,n){if(u.hp<=0)return;u.sp=clamp(u.sp+n,-45,45)}
+
+/* ---------- statuses at runtime ---------- */
+function addStatus(u,key,n,mode){
+  if(!u||u.hp<=0||n<=0)return;const S=STATUS[key];
+  if(S.pc){if(mode==='c'){u.cnt[key]=Math.min(99,u.cnt[key]+n);if(!u.st[key])u.st[key]=1}else{u.st[key]=Math.min(99,u.st[key]+n);if(!u.cnt[key])u.cnt[key]=1}}
+  else{u.st[key]=Math.min(S.max||20,u.st[key]+n);if(S.timed)u.exp[key]=B.turn+1}
+}
+function spendCount(u,key){u.cnt[key]--;if(u.cnt[key]<=0){u.cnt[key]=0;u.st[key]=0}}
+const isAfflicted=u=>STATUS_ORDER.some(k=>STATUS[k].kind==='debuff'&&u.st[k]>0)||Object.keys(u.cs).some(id=>u.cs[id]>0&&save.statuses[id]&&save.statuses[id].pol==='debuff');
+function csWhile(u,eff){
+  let v=0;
+  for(const id in u.cs){const n=u.cs[id],d=save.statuses[id];if(!n||!d||d.trig!=='while'||d.eff!==eff)continue;const sg=d.pol==='buff'?1:-1;
+    if(eff==='power')v+=sg*Math.floor(n*d.str/2);else if(eff==='heads')v+=sg*.03*d.str*n;else if(eff==='dmgTaken')v-=sg*.05*d.str*n}
+  return v;
+}
+const powMod=u=>(u.st.powerup||0)-(u.st.powerdown||0)+csWhile(u,'power')+(u.powBonus||0);
+const headsP=u=>clamp(.5+u.sp/100+csWhile(u,'heads'),.05,.95);
+function tremorBurst(u){
+  if(!u||u.hp<=0)return;const p=u.st.tremor;if(!p)return;
+  if(u.staggerHP.length)u.staggerHP[0]=Math.min(u.maxHp,u.staggerHP[0]+p);
+  pop(u,`Tremor Burst +${p}`,'st-tremor');log(`Tremor Burst on ${u.name}: stagger threshold +${p}.`);
+  spendCount(u,'tremor');afterDamage(u);
+}
+function fireCS(u,trig){
+  if(u.hp<=0)return;
+  for(const id of Object.keys(u.cs)){
+    const n=u.cs[id],d=save.statuses[id];if(!n||!d||d.trig!==trig)continue;
+    const a=n*d.str;
+    switch(d.eff){
+      case 'dmg':rawDamage(u,a,d.name,'cs',d.color);break;
+      case 'sp':changeSP(u,d.pol==='buff'?a:-a);pop(u,`${d.pol==='buff'?'+':'-'}${a} SP`,'cs',d.color);break;
+      case 'stagger':if(u.staggerHP.length)u.staggerHP[0]=Math.min(u.maxHp,u.staggerHP[0]+a*2);pop(u,`${d.name} +${a*2}`,'cs',d.color);afterDamage(u);break;
+      case 'heal':{const h=Math.min(u.maxHp-u.hp,a);u.hp+=h;pop(u,`+${h} HP`,'cs',d.color);break}
+      case 'shield':u.shield+=a;pop(u,`+${a} Shield`,'cs',d.color);break;
+    }
+    log(`${d.name} acts on ${u.name}.`);
+    if(d.decay==='one')u.cs[id]=n-1;else if(d.decay==='half')u.cs[id]=Math.floor(n/2);
+    if(u.hp<=0)return;
+  }
+}
+function firePassive(u,trig,ctx={}){
+  if(!u.passives||!u.passives.length||u.hp<=0)return;
+  for(const p of u.passives){
+    if(p.trig!==trig)continue;if(trig==='lowhp'&&!(u.hp<u.maxHp*.5))continue;
+    switch(p.eff){
+      case 'heal':{const h=Math.min(u.maxHp-u.hp,p.amt);u.hp+=h;pop(u,`+${h} HP`,'heal');break}
+      case 'sp':changeSP(u,p.amt);pop(u,`+${p.amt} SP`,'sp');break;
+      case 'shield':u.shield+=p.amt;pop(u,`+${p.amt} Shield`,'shield');break;
+      case 'self':applyFx({eff:p.status,amt:p.amt},u,null);break;
+      case 'inflict':{const t=ctx.attacker&&ctx.attacker.hp>0?ctx.attacker:randomAlive(u.side==='ally'?B.enemies:B.allies);if(t)applyFx({eff:p.status,amt:p.amt},u,t);break}
+    }
+    log(`${u.name}’s passive: ${p.name}.`);
+  }
+}
+
+/* ---------- turn start / planning ---------- */
+function startTurn(){
+  SPEED.skip=false;
+  const all=[...B.allies,...B.enemies];
+  for(const u of all){
+    u.dice=[];
+    if(u.hp>0&&!u.stag)for(let i=0;i<u.nd;i++)u.dice.push({speed:Math.max(1,rnd(u.spd[0],u.spd[1])+u.st.haste-u.st.bind)});
+    u.dice.sort((a,b)=>b.speed-a.speed);
+    u.st.haste=0;u.st.bind=0;
+  }
+  all.forEach(u=>fireCS(u,'turnStart'));
+  B.allies.forEach(a=>firePassive(a,'turnStart'));
+  const o=checkOver();if(o){finishBattle(o==='win');return}
+  const targets=alive(B.allies);
+  for(const e of B.enemies)for(const d of e.dice){
+    const s=getSkill(pick(e.skills));d.skill=s;
+    if(s.type==='guard')d.target=e;
+    else{const low=[...targets].sort((a,b)=>a.hp/a.maxHp-b.hp/b.maxHp)[0];d.target=Math.random()<.35?low:pick(targets)}
+  }
+  B.plans=B.allies.map(a=>{
+    if(!a.dice.length)return null;
+    const hand=shuffle([...a.skills]).slice(0,2).map(getSkill).filter(Boolean);hand.push(SK.brace);
+    return{hand,skill:null,target:null};
+  });
+  autoPlan();
+  B.phase='plan';B.active=null;
+  log(`Turn ${B.turn}`,'turn');
+  renderBattle();
+}
+function autoPlan(){
+  const used=new Set();
+  const order=B.allies.map((a,i)=>i).filter(i=>B.plans[i]).sort((x,y)=>B.allies[y].dice[0].speed-B.allies[x].dice[0].speed);
+  for(const i of order){
+    const a=B.allies[i],p=B.plans[i];
+    p.skill=p.hand.find(s=>s.type!=='guard')||p.hand[0];
+    if(p.skill.type==='guard'){p.target=null;continue}
+    let tgt=null;
+    for(const e of B.enemies){if(e.hp<=0||tgt)continue;e.dice.forEach((d,di)=>{const k=e.uid+':'+di;if(!tgt&&d.target===a&&d.skill.type!=='guard'&&!used.has(k)){tgt=e;used.add(k)}})}
+    p.target=tgt||randomAlive(B.enemies);
+  }
+}
+function computeEngagements(){
+  const engs=[],claimed=new Set(),edice=[];
+  B.enemies.forEach(e=>{if(canAct(e))e.dice.forEach((d,di)=>edice.push({u:e,d,key:e.uid+':'+di}))});
+  const acts=B.allies.map((a,i)=>({a,i,p:B.plans[i]})).filter(x=>x.p&&x.p.skill&&canAct(x.a)).sort((x,y)=>y.a.dice[0].speed-x.a.dice[0].speed);
+  for(const {a,i,p} of acts){
+    const sp=a.dice[0].speed,adie=a.dice[0];
+    if(p.skill.type==='guard'){engs.push({kind:'guard',u:a,s:p.skill,speed:sp,ally:i,dice:[adie]});continue}
+    const t=p.target&&p.target.hp>0?p.target:null;if(!t)continue;
+    const mine=edice.filter(x=>x.u===t&&!claimed.has(x.key)&&x.d.skill.type!=='guard');
+    let opp=mine.find(x=>x.d.target===a),redirect=false;
+    if(!opp){opp=mine.filter(x=>x.d.speed<sp).sort((x,y)=>y.d.speed-x.d.speed)[0];redirect=!!opp}
+    if(opp){claimed.add(opp.key);engs.push({kind:'clash',a:{u:a,s:p.skill},b:{u:t,s:opp.d.skill},speed:Math.max(sp,opp.d.speed),ally:i,redirect,edie:opp.d,dice:[adie,opp.d]})}
+    else engs.push({kind:'one',u:a,s:p.skill,t,speed:sp,ally:i,dice:[adie]});
+  }
+  for(const x of edice){
+    if(claimed.has(x.key))continue;
+    if(x.d.skill.type==='guard')engs.push({kind:'guard',u:x.u,s:x.d.skill,speed:x.d.speed,dice:[x.d]});
+    else engs.push({kind:'one',u:x.u,s:x.d.skill,t:x.d.target,speed:x.d.speed,dice:[x.d],edie:x.d});
+  }
+  return engs;
+}
+function rollTotal(u,s,coins){
+  let t=s.base+powMod(u);const flips=[],p=headsP(u),para=u.st.paralysis||0;
+  for(let i=0;i<coins;i++){const h=Math.random()<p;flips.push(h);if(h&&i>=para)t+=s.coinPow}
+  return{total:Math.max(0,t),flips};
+}
+function clashOdds(A,sA,D,sD,N=300){
+  let w=0;
+  for(let n=0;n<N;n++){let ca=sA.coins,cd=sD.coins,ties=0;
+    while(ca>0&&cd>0&&ties<4){const ra=rollTotal(A,sA,ca).total,rd=rollTotal(D,sD,cd).total;if(ra>rd)cd--;else if(rd>ra)ca--;else ties++}
+    if(ca>0&&cd===0)w++}
+  return w/N;
+}
+
+/* ---------- scene ---------- */
+const ALLY_SLOTS=[{x:30,b:3},{x:16,b:9},{x:41,b:13}];
+const ENEMY_SLOTS=[{x:70,b:3},{x:84,b:9},{x:59,b:13},{x:93,b:15}];
+const home=u=>(u.side==='ally'?ALLY_SLOTS:ENEMY_SLOTS)[u.slot]||{x:50,b:5};
+const STARS=[[40,30],[95,62],[150,22],[210,48],[260,18],[320,40],[372,70],[430,26],[488,52],[540,20],[700,34],[752,60],[778,18],[600,128],[120,110],[350,104],[470,96],[60,140]];
+function backdropSVG(){
+  return `<svg viewBox="0 0 800 360" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs><linearGradient id="bgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#120d1a"/><stop offset=".62" stop-color="#2a1b25"/><stop offset="1" stop-color="#3d2426"/></linearGradient>
+  <radialGradient id="bgMoon"><stop offset="0" stop-color="#f1dcb0" stop-opacity=".45"/><stop offset="1" stop-color="#f1dcb0" stop-opacity="0"/></radialGradient>
+  <radialGradient id="bgLamp"><stop offset="0" stop-color="#ffb366" stop-opacity=".5"/><stop offset="1" stop-color="#ffb366" stop-opacity="0"/></radialGradient>
+  <linearGradient id="bgDeck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3e2c23"/><stop offset="1" stop-color="#1c1411"/></linearGradient>
+  <linearGradient id="bgWater" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241d2c"/><stop offset="1" stop-color="#141019"/></linearGradient></defs>
+  <rect width="800" height="360" fill="url(#bgSky)"/>
+  ${STARS.map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="${i%3?1:1.6}" fill="#efe0c0" opacity="${.35+(i%4)*.12}"/>`).join('')}
+  <circle cx="645" cy="72" r="80" fill="url(#bgMoon)"/><circle cx="645" cy="72" r="25" fill="#ecdcbc"/><circle cx="636" cy="66" r="5" fill="#d9c7a3"/><circle cx="654" cy="80" r="3.5" fill="#d9c7a3"/>
+  <path d="M0 212 L0 176 L36 176 L36 158 L62 158 L62 180 L104 180 L104 146 L118 146 L118 182 L170 182 L170 166 L214 166 L214 186 L300 186 L300 170 L332 170 L332 150 L346 150 L346 184 L430 184 L430 162 L470 162 L470 188 L560 188 L560 172 L604 172 L604 156 L622 156 L622 186 L700 186 L700 168 L742 168 L742 184 L800 184 L800 212Z" fill="#1d1620"/>
+  <path d="M520 188 L520 92 M520 96 L590 96 M590 96 L590 120 M520 110 L540 96" stroke="#1d1620" stroke-width="5" fill="none"/>
+  <path d="M160 182 L160 110 M160 114 L104 114 M104 114 L104 134" stroke="#1d1620" stroke-width="4" fill="none"/>
+  <rect y="205" width="800" height="40" fill="url(#bgWater)"/>
+  ${[214,224,234].map((y,i)=>`<path d="M${30+i*60} ${y} h70 M${260+i*40} ${y} h50 M${520-i*30} ${y} h90" stroke="#b9a37a" stroke-opacity="${.18-i*.04}" stroke-width="1.4"/>`).join('')}
+  <rect y="240" width="800" height="120" fill="url(#bgDeck)"/>
+  ${[252,268,288,314,346].map(y=>`<line x1="0" y1="${y}" x2="800" y2="${y}" stroke="#241a15" stroke-width="2"/>`).join('')}
+  <rect y="238" width="800" height="5" fill="#4d382c"/>
+  <g><rect x="84" y="140" width="9" height="104" fill="#251c22"/><rect x="78" y="128" width="21" height="16" rx="2" fill="#2e2329"/><rect x="82" y="131" width="13" height="10" fill="#ffb366"/><circle cx="88" cy="136" r="78" fill="url(#bgLamp)"/></g>
+  <g><rect x="707" y="140" width="9" height="104" fill="#251c22"/><rect x="701" y="128" width="21" height="16" rx="2" fill="#2e2329"/><rect x="705" y="131" width="13" height="10" fill="#ffb366"/><circle cx="711" cy="136" r="78" fill="url(#bgLamp)"/></g>
+  <rect x="244" y="226" width="16" height="16" rx="4" fill="#231a1c"/><rect x="548" y="226" width="16" height="16" rx="4" fill="#231a1c"/>
+  </svg>`;
+}
+function actorHTML(u){
+  const h=home(u);
+  return `<div class="actor ${u.side}" id="act-${u.uid}" style="left:${h.x}%;bottom:${h.b}%;z-index:${50-h.b};--s:${u.scale}">
+    <div class="a-tag"><span class="a-dice"></span><b>${esc(u.name)}</b></div><div class="a-hp"><i class="sh"></i><i class="hpf"></i></div><div class="a-st"></div>
+    <div class="doll">${dollSVG(u.look,u.weapon,'0 34 120 166')}</div></div>`;
+}
+const actorEl=u=>document.getElementById('act-'+u.uid);
+function setPose(u,p,force){
+  const el=actorEl(u);if(!el)return;if(u._pose===p&&!force)return;u._pose=p;
+  const d=el.querySelector('.doll');d.className='doll';void d.offsetWidth;d.className='doll pose-'+p+(p==='idle'?' idle':'');
+}
+const basePose=u=>setPose(u,u.hp<=0?'down':u.stag?'stag':'idle');
+function moveTo(u,x,b){const el=actorEl(u);if(!el)return;el.style.left=x+'%';el.style.bottom=b+'%';el.style.zIndex=70}
+function goHome(u){const el=actorEl(u),h=home(u);u._busy=false;if(el){el.style.left=h.x+'%';el.style.bottom=h.b+'%';el.style.zIndex=50-h.b}basePose(u)}
+function updateActors(){
+  if(!B)return;
+  B.enemies.forEach((u,i)=>{
+    const el=actorEl(u);if(!el)return;
+    const tg=B.phase==='plan'&&u.hp>0&&B.active!=null;
+    if(tg){el.dataset.act='target';el.dataset.e=i;el.setAttribute('role','button');el.tabIndex=0;el.setAttribute('aria-label','Target '+u.name)}
+    else{delete el.dataset.act;el.removeAttribute('role');el.removeAttribute('tabindex')}
+    el.classList.toggle('targetable',tg);
+    el.classList.toggle('aimed',B.active!=null&&B.plans[B.active]&&B.plans[B.active].target===u);
+  });
+  for(const u of [...B.allies,...B.enemies]){
+    const el=actorEl(u);if(!el)continue;
+    el.classList.toggle('dead',u.hp<=0);el.classList.toggle('stag',u.stag);
+    el.querySelector('.a-dice').innerHTML=u.dice.map(d=>`<span class="die ${d.done?'done':''}">${d.speed}</span>`).join('');
+    el.querySelector('.hpf').style.width=(u.hp/u.maxHp*100)+'%';
+    el.querySelector('.sh').style.width=Math.min(100,u.shield/u.maxHp*100)+'%';
+    el.querySelector('.a-st').innerHTML=miniStatus(u);
+    if(!u._busy)basePose(u);
+  }
+}
+function miniStatus(u){
+  const out=STATUS_ORDER.filter(k=>u.st[k]>0).map(k=>`<span class="ms st-${k}">${STATUS[k].abbr}${u.st[k]}</span>`);
+  for(const id in u.cs){const d=save.statuses[id];if(u.cs[id]>0&&d)out.push(`<span class="ms" style="color:${d.color}">${d.glyph}${u.cs[id]}</span>`)}
+  if(u.shield>0)out.push(`<span class="ms st-shield">◇${u.shield}</span>`);
+  return out.slice(0,6).join('');
+}
+function statusChips(u){
+  const out=STATUS_ORDER.filter(k=>u.st[k]>0).map(k=>`<span class="st st-${k}" title="${esc(STATUS[k].label+': '+STATUS[k].info)}">${STATUS[k].label} ${u.st[k]}${STATUS[k].pc?'·'+u.cnt[k]:''}</span>`);
+  for(const id in u.cs){const d=save.statuses[id];if(u.cs[id]>0&&d)out.push(`<span class="st" style="color:${d.color}" title="${esc(d.name+': '+csDescribe(d))}">${d.glyph} ${esc(d.name)} ${u.cs[id]}</span>`)}
+  if(u.shield>0)out.push(`<span class="st st-shield" title="Shield absorbs damage until end of turn">Shield ${u.shield}</span>`);
+  return out.join('');
+}
+
+/* ---------- battle: render ---------- */
+function battleShell(){return `<section class="battle">
+  <div class="bhead"><div><p class="eyebrow" id="bsub"></p><h2 id="bname"></h2></div>
+    <div class="bctl"><div class="speedctl" role="group" aria-label="Animation speed">${[1,2,4].map(m=>`<button type="button" data-act="speed" data-m="${m}">${m}×</button>`).join('')}<button type="button" data-act="speed" data-m="0" title="Finish this turn instantly">Skip turn</button></div>
+    <button type="button" class="btn ghost sm" data-act="retreat" id="retreatBtn">Retreat</button></div></div>
+  <div class="scene" id="scene"><div class="scene-bg">${backdropSVG()}</div><div class="hud" id="hud"></div><div class="actors" id="actors">${[...B.allies,...B.enemies].map(actorHTML).join('')}</div></div>
+  <div class="board"><div class="side allies" id="allies"></div><div class="side enemies" id="enemies"></div></div>
+  <div class="planner" id="planner"></div>
+  <details class="log" id="logBox"><summary>Combat log</summary><ol id="blog"></ol></details>
+</section>`}
+function renderBattle(){
+  const el=$('#view');if(!B)return;
+  if(!el.querySelector('.battle'))el.innerHTML=battleShell();
+  $('#bname').textContent=B.name;
+  $('#bsub').textContent=`${B.night?'Night Shift':'Contract No. '+String(B.stage+1).padStart(3,'0')} · Turn ${B.turn}`;
+  document.querySelectorAll('.speedctl button').forEach(b=>b.classList.toggle('on',+b.dataset.m===SPEED.mult));
+  $('#retreatBtn').hidden=B.phase!=='plan';
+  if(B.phase==='plan'){B.engs=computeEngagements();hudIdle()}
+  renderUnits();
+  $('#planner').innerHTML=plannerHTML();
+  renderLog();
+}
+function renderUnits(){
+  if(!B)return;
+  const a=$('#allies'),e=$('#enemies');if(!a)return;
+  a.innerHTML='<p class="side-lbl">Your squad</p>'+B.allies.map(u=>unitCard(u)).join('');
+  e.innerHTML='<p class="side-lbl">Opposition</p>'+B.enemies.map((u,i)=>unitCard(u,i)).join('');
+  updateActors();
+}
+function unitCard(u,idx){
+  const isE=u.side==='enemy';
+  const hue=isE?'var(--c-enemy)':`var(--c-${u.key})`;
+  const pct=u.hp/u.maxHp*100,spct=Math.min(100,u.shield/u.maxHp*100);
+  const ticks=[...u.staggerHP.map(h=>[h,0]),...u.staggerSpent.map(h=>[h,1])].map(([h,sp])=>`<i class="tick ${sp?'spent':''}" style="left:${h/u.maxHp*100}%"></i>`).join('');
+  const targetable=isE&&B.phase==='plan'&&u.hp>0&&B.active!=null;
+  const aimedByActive=B.active!=null&&B.plans[B.active]&&B.plans[B.active].target===u;
+  const sts=statusChips(u);
+  let intents='';
+  if(isE&&u.hp>0&&u.dice.length){
+    intents='<div class="intents">'+u.dice.map(d=>{
+      const e=B.engs.find(x=>x.dice&&x.dice.includes(d));
+      let tag;
+      if(d.skill.type==='guard')tag='<span class="tag tg-guard">Guard</span>';
+      else if(e&&e.kind==='clash')tag=`<span class="tag tg-clash">vs ${esc(e.a.u.name)}</span>`;
+      else tag='<span class="tag tg-open">Unopposed</span>';
+      const [lo,hi]=skillRange(d.skill,powMod(u));
+      return `<div class="intent"><span class="die ${d.done?'done':''}">${d.speed}</span><span class="what"><b>${esc(d.skill.name)}</b> <span class="rng">${lo}–${hi}</span> → ${d.target===u?'self':esc(d.target.name)}</span>${d.done?'':tag}</div>`}).join('')+'</div>';
+  }
+  const aimers=isE&&B.phase==='plan'?B.plans.map((p,i)=>p&&p.target===u&&p.skill&&p.skill.type!=='guard'?`<span style="--hue:var(--c-${B.allies[i].key})">◆ ${B.allies[i].name}</span>`:'').filter(Boolean):[];
+  const incoming=!isE?B.enemies.reduce((n,e)=>n+e.dice.filter(d=>!d.done&&d.target===u&&d.skill.type!=='guard'&&canAct(e)).length,0):0;
+  const badge=u.hp<=0?'<span class="badge">DOWN</span>':u.stag?'<span class="badge">STAGGERED</span>':'';
+  const attrs=targetable?`data-act="target" data-e="${idx}" role="button" tabindex="0" aria-label="Target ${esc(u.name)}"`:'';
+  const pas=!isE&&u.passives.length?`<div class="aimers">${u.passives.map(p=>`<span class="pas-mini" title="${esc(passiveText(p))}">◈ ${esc(p.name)}</span>`).join('')}</div>`:'';
+  return `<div class="unit ${u.side} ${u.hp<=0?'dead':''} ${u.stag?'stag':''} ${targetable?'targetable':''} ${aimedByActive?'aimed':''}" id="u-${u.uid}" style="--hue:${hue}" ${attrs}>
+    ${badge}
+    <div class="uhead"><span class="glyph"></span><span class="uname">${esc(u.name)}</span><span class="dice">${u.dice.map(d=>`<span class="die ${d.done?'done':''}" title="Speed">${d.speed}</span>`).join('')}</span></div>
+    <div class="hp" title="Brass marks are stagger thresholds">${u.shield>0?`<div class="shieldfill" style="width:${spct}%"></div>`:''}<div class="fill" style="width:${pct}%;${u.shield>0?'opacity:.85':''}"></div>${ticks}</div>
+    <div class="ustats"><span><b>${u.hp}</b>/${u.maxHp} HP</span><span>SP <b class="${u.sp>0?'sp-pos':u.sp<0?'sp-neg':''}">${sgn(u.sp)}</b></span><span>Heads <b>${Math.round(headsP(u)*100)}%</b></span>${incoming?`<span class="weak">${incoming} incoming</span>`:''}</div>
+    ${isE?`<div class="res">${resLine(u.res)}</div>`:''}
+    ${sts?`<div class="statuses">${sts}</div>`:''}
+    ${intents}${pas}
+    ${aimers.length?`<div class="aimers">Aimed by ${aimers.join(' ')}</div>`:''}
+  </div>`;
+}
+function hudIdle(){
+  const clashes=B.engs.filter(e=>e.kind==='clash').length,open=B.engs.filter(e=>e.kind==='one'&&e.u.side==='enemy').length;
+  $('#hud').innerHTML=`<div class="hud-idle"><span class="eyebrow">Planning</span><b>Turn ${B.turn}</b><span>${clashes} clash${clashes===1?'':'es'} set · ${open} unopposed</span></div>`;
+}
+function planLine(i){
+  const p=B.plans[i];
+  if(!p.skill)return 'Pick a skill.';
+  const e=B.engs.find(x=>x.ally===i);
+  if(!e)return `<span class="warn">Tap an enemy to aim ${esc(p.skill.name)}.</span>`;
+  if(e.kind==='guard')return `<b>${esc(p.skill.name)}</b> · gains Shield before any attack lands.`;
+  if(e.kind==='one')return `<b>${esc(p.skill.name)}</b> → ${esc(e.t.name)} · <span class="tag tg-open">Unopposed hit</span>`;
+  const odds=Math.round(clashOdds(e.a.u,e.a.s,e.b.u,e.b.s)*100);
+  return `<b>${esc(p.skill.name)}</b> → ${esc(e.b.u.name)} · <span class="tag tg-clash">Clash</span> vs ${esc(e.b.s.name)}${e.redirect?' (you’re faster, so you pull its attack onto you)':''} · <span class="odds ${odds>=60?'good':odds<=40?'bad':''}">${odds}% to win</span>`;
+}
+function plannerHTML(){
+  if(B.over)return resultHTML();
+  if(B.phase!=='plan')return `<div class="resolving">Resolving the turn…</div>`;
+  const rows=B.allies.map((a,i)=>{
+    const p=B.plans[i],hue=`--hue:var(--c-${a.key})`;
+    if(a.hp<=0)return `<div class="plan down" style="${hue}"><div class="phead"><span class="glyph"></span><span class="uname">${a.name}</span><span class="meta">Down</span></div></div>`;
+    if(!p)return `<div class="plan down" style="${hue}"><div class="phead"><span class="glyph"></span><span class="uname">${a.name}</span><span class="meta">Staggered · skips this turn</span></div></div>`;
+    const hand=p.hand.map((s,k)=>skillCard(s,{button:true,cls:p.skill===s?'picked':'',attrs:`data-act="pick" data-a="${i}" data-k="${k}" aria-pressed="${p.skill===s}"`})).join('');
+    return `<div class="plan ${B.active===i?'active':''}" style="${hue}">
+      <button type="button" class="phead" data-act="aim" data-a="${i}" title="Retarget"><span class="glyph"></span><span class="uname">${a.name}</span><span class="meta">Speed <b>${a.dice[0].speed}</b> · SP ${sgn(a.sp)}</span></button>
+      <div class="hand">${hand}</div><div class="pline">${planLine(i)}</div></div>`;
+  }).join('');
+  const act=B.active!=null?B.allies[B.active]:null;
+  const hint=act?`Choose a target for <b>${act.name}</b>: tap an enemy in the scene or its card.`:'Tap a skill, then tap an enemy to aim it. Aim at an enemy whose attack targets you to clash with it.';
+  return `<div class="plans">${rows}</div><div class="pfoot"><span class="hint">${hint}</span><button type="button" class="btn big" data-act="commence">Commence</button></div>`;
+}
+function resultHTML(){
+  const o=B.over;
+  const rows=Object.entries(o.rewards).map(([id,n])=>`<li style="--hue:var(--c-${id})"><i></i><b>+${n}</b><span>${CHARS[id].short} · ${save.tokens[id]} total</span></li>`).join('');
+  return `<div class="result ${o.win?'win':'loss'}">
+    <p class="eyebrow">${o.win?(B.night?'Hour survived':'Contract paid'):(B.night?'Shift over':'Contract failed')}</p>
+    <h3>${o.win?'Victory':'Defeat'}</h3>
+    ${o.win?`<p>${o.first?'First clear. ':''}Character Tokens earned:</p><ul class="rewards">${rows}</ul>`:`<p>No tokens this time.${B.night?` Your shift lasted ${o.hours} hour${o.hours===1?'':'s'}.`:''} Try a different team, or forge skills that answer what beat you.</p>`}
+    <div class="ractions">${B.night&&o.win?`<button type="button" class="btn big" data-act="nextnight">Next hour</button>`:''}
+      <button type="button" class="btn ${B.night&&o.win?'ghost':''}" data-act="leave" data-v="forge">Skill Forge</button>
+      <button type="button" class="btn ghost" data-act="leave" data-v="contracts">Contracts</button></div>
+  </div>`;
+}
+function log(t,c=''){if(!B)return;B.log.push({t,c});renderLog()}
+function renderLog(){const el=$('#blog');if(el&&B)el.innerHTML=B.log.slice(-120).reverse().map(l=>`<li class="${l.c}">${esc(l.t)}</li>`).join('')}
+const popCount={};
+function pop(u,text,cls='',color){
+  const el=actorEl(u)||document.getElementById('u-'+u.uid);if(!el)return;
+  const r=el.getBoundingClientRect();if(!r.width)return;
+  const n=popCount[u.uid]=(popCount[u.uid]||0)+1;setTimeout(()=>popCount[u.uid]--,650);
+  const d=document.createElement('div');d.className='pop '+cls;d.textContent=text;if(color)d.style.color=color;
+  d.style.left=(r.left+r.width/2+(Math.random()*30-15))+'px';d.style.top=(r.top+r.height*.28+((n-1)%4)*20)+'px';
+  $('#fx').appendChild(d);setTimeout(()=>d.remove(),1200);
+}
+
+/* ---------- HUD (clash readout) ---------- */
+function stageSides(A,sA,D,sD){
+  $('#hud').innerHTML=`<div class="clash">
+    <div class="cs" id="csA"><div class="cs-name">${esc(A.name)}</div><div class="cs-skill t-${sA.type}">${esc(sA.name)}</div><div class="cs-coins" data-coins>${'<i class="coin"></i>'.repeat(sA.coins)}</div><div class="cs-total" data-total>${sA.base}</div><div class="cs-note" data-note></div></div>
+    <div class="cvs" id="cvs">${sD?'Clash':'Strike'}</div>
+    <div class="cs" id="csB"><div class="cs-name">${esc(D.name)}</div><div class="cs-skill ${sD?'t-'+sD.type:''}">${sD?esc(sD.name):'Unopposed'}</div><div class="cs-coins" data-coins>${sD?'<i class="coin"></i>'.repeat(sD.coins):''}</div><div class="cs-total" data-total>${sD?sD.base:''}</div><div class="cs-note" data-note></div></div>
+  </div>`;
+}
+function setSide(id,{total,remaining,flips,val,anim='all',note,cls}){
+  const el=document.getElementById(id);if(!el)return;
+  if(total!=null){let h='';for(let i=0;i<total;i++){
+    if(i>=remaining)h+='<i class="coin broken"></i>';
+    else if(flips&&i<flips.length){const a=anim==='all'||(anim==='last'&&i===flips.length-1);h+=`<i class="coin ${flips[i]?'heads':'tails'} ${a?'flip':''}"></i>`}
+    else h+='<i class="coin"></i>'}
+    el.querySelector('[data-coins]').innerHTML=h}
+  if(val!=null){const t=el.querySelector('[data-total]');t.textContent=val;t.className='cs-total '+(cls||'');void t.offsetWidth;t.classList.add('bump')}
+  if(note!=null)el.querySelector('[data-note]').textContent=note;
+}
+
+/* ---------- battle: resolution ---------- */
+function applyTrig(trig,u,s,t){for(const f of s.effects||[])if(f.trig===trig)applyFx(f,u,t)}
+const fastest=u=>u&&canAct(u)&&u.dice.length?Math.max(...u.dice.map(d=>d.speed)):0;
+function fireUse(u,s,t,ctx={}){
+  applyTrig('use',u,s,t);
+  if(u.hp>0&&u.hp<u.maxHp*.5)applyTrig('lowhp',u,s,t);
+  if(u.sp>=15)applyTrig('highsp',u,s,t);
+  if((s.effects||[]).some(f=>f.trig==='spend')&&u.st.charge>=3){u.st.charge-=3;pop(u,'-3 Charge','st-charge');applyTrig('spend',u,s,t)}
+  if(s.type!=='guard'){
+    if(ctx.unopposed)applyTrig('unopposed',u,s,t);
+    if((ctx.speed||0)>(ctx.theirSpeed||0))applyTrig('faster',u,s,t);
+  }
+}
+function applyFx(f,u,t){
+  const E=effDef(f.eff),n=f.amt;if(!E)return;
+  if(E.on==='target'){if(!t||t.hp<=0||t===u)return}else if(u.hp<=0)return;
+  const r=E.on==='target'?t:u;
+  if(E.cs){const d=save.statuses[E.cs];r.cs[E.cs]=Math.min(10,(r.cs[E.cs]||0)+n);pop(r,`+${n} ${d.name}`,'cs',d.color);log(`${r.name} gains ${n} ${d.name}.`);return}
+  if(E.st){addStatus(r,E.st,n,E.mode);pop(r,`+${n} ${E.label}`,'st-'+E.st);log(`${r.name} gains ${n} ${E.label}.`);return}
+  switch(f.eff){
+    case 'burst':for(let i=0;i<n;i++)tremorBurst(t);return;
+    case 'shield':u.shield+=n*3;pop(u,`+${n*3} Shield`,'shield');break;
+    case 'heal':{const h=Math.min(u.maxHp-u.hp,n*2);u.hp+=h;pop(u,`+${h} HP`,'heal');break}
+    case 'sanity':changeSP(u,n*2);pop(u,`+${n*2} SP`,'sp');break;
+    case 'rally':alive(u.side==='ally'?B.allies:B.enemies).forEach(x=>{changeSP(x,n*2);pop(x,`+${n*2} SP`,'sp')});break;
+    case 'recoil':rawDamage(u,n*2,'Recoil','st-recoil');return;
+    case 'strain':changeSP(u,-n*3);pop(u,`-${n*3} SP`,'st-sinking');break;
+  }
+  log(`${u.name}: ${E.txt(n)}.`);
+}
+function afterDamage(u,killer){
+  if(u.hp<=0){if(!u.dead){u.dead=true;onDeath(u,killer)}return}
+  let trig=false;while(u.staggerHP.length&&u.hp<=u.staggerHP[0]){u.staggerSpent.push(u.staggerHP.shift());trig=true}
+  if(trig&&!u.stag){u.stag=true;u.stagUntil=B.turn+1;pop(u,'STAGGERED','stag');log(`${u.name} is staggered: no actions next turn, double damage taken.`,'stag')}
+}
+function onDeath(u,killer){
+  u.stag=false;u.dice.forEach(d=>d.done=true);
+  log(`${u.name} goes down.`,'death');setPose(u,'down');
+  if(u.side==='enemy'){alive(B.allies).forEach(a=>changeSP(a,5));if(killer&&killer.side==='ally')firePassive(killer,'kill')}
+  else alive(B.allies).forEach(a=>{changeSP(a,-10);firePassive(a,'allyDown')});
+}
+function rawDamage(u,n,label,cls='',color){
+  if(u.hp<=0||n<=0)return;u.hp=Math.max(0,u.hp-n);pop(u,`-${n} ${label}`,cls,color);log(`${u.name} takes ${n} from ${label}.`);afterDamage(u);
+}
+function dealHit(u,t,power,type){
+  const mult=t.res?.[type]??1;
+  const taken=Math.max(.1,1+.1*(t.st.fragile||0)-.1*(t.st.protection||0)+csWhile(t,'dmgTaken'));
+  let dmg=power*mult*(t.stag?2:1)*taken,crit=false;
+  if(u.st.poise>0&&Math.random()<Math.min(1,u.st.poise*.05)){crit=true;dmg*=1.2;spendCount(u,'poise')}
+  dmg=Math.round(dmg);
+  let rup=0;if(t.st.rupture>0){rup=t.st.rupture;dmg+=rup;spendCount(t,'rupture')}
+  let blocked=0;if(t.shield>0){blocked=Math.min(t.shield,dmg);t.shield-=blocked;dmg-=blocked}
+  t.hp=Math.max(0,t.hp-dmg);
+  pop(t,`${crit?'CRIT ':''}-${dmg}${blocked?` (${blocked} blocked)`:''}`,crit?'crit':'dmg');
+  log(`${u.name} hits ${t.name} for ${dmg}${crit?' (crit)':''}${rup?` incl. ${rup} Rupture`:''}${blocked?`, ${blocked} blocked`:''}${mult>1?' (weak)':mult<1?' (resisted)':''}.`,'dmg');
+  if(t.hp>0&&t.st.sinking>0){const p=t.st.sinking;if(t.sp<=-45){t.hp=Math.max(0,t.hp-p);pop(t,`-${p} Gloom`,'st-sinking')}else{changeSP(t,-p);pop(t,`-${p} SP`,'st-sinking')}spendCount(t,'sinking')}
+  if(t.hp>0)fireCS(t,'hit');
+  afterDamage(t,u);
+  return{dmg,crit};
+}
+async function hitSequence(u,s,coins,t,atkId,defId){
+  let power=s.base+powMod(u),dealt=0,landed=0,killed=false;const flips=[];
+  setSide(atkId,{total:s.coins,remaining:coins,flips:[],val:Math.max(0,power),note:'Striking'});
+  setSide(defId,{val:'',note:''});
+  await sleep(260);
+  for(let i=0;i<coins;i++){
+    if(!canAct(u)||t.hp<=0)break;
+    if(u.st.bleed>0){const b=u.st.bleed;spendCount(u,'bleed');rawDamage(u,b,'Bleed','st-bleed');renderUnits();if(!canAct(u))break}
+    fireCS(u,'attack');if(!canAct(u))break;
+    const wasStag=t.stag,afflicted=isAfflicted(t);
+    const h=Math.random()<headsP(u);flips.push(h);
+    let para=false;if(u.st.paralysis>0){u.st.paralysis--;para=true}
+    if(h&&!para)power+=s.coinPow;
+    const p=Math.max(0,power);
+    setSide(atkId,{total:s.coins,remaining:coins,flips,val:p,anim:'last',note:para?'Paralyzed coin':'Striking'});
+    setPose(u,'attack',true);
+    applyTrig(h?'heads':'tails',u,s,t);
+    const r=dealHit(u,t,p,s.type);dealt+=r.dmg;landed++;
+    setPose(t,t.hp<=0?'down':'hit',true);
+    if(landed===1)firePassive(t,'hit',{attacker:u});
+    applyTrig('hit',u,s,t);
+    if(landed===1)applyTrig('first',u,s,t);
+    if(i===coins-1)applyTrig('final',u,s,t);
+    if(r.crit)applyTrig('crit',u,s,t);
+    if(wasStag)applyTrig('stagtarget',u,s,t);
+    if(afflicted)applyTrig('afflicted',u,s,t);
+    if(t.hp<=0&&!killed){killed=true;applyTrig('kill',u,s,t)}
+    setSide(defId,{val:`-${dealt}`,cls:'dmg',note:t.hp<=0?'Down':t.stag?'Staggered':''});
+    renderUnits();
+    await sleep(480);
+  }
+  if(!t._busy)basePose(t);
+  await sleep(200);
+}
+async function resolveClash(e){
+  const A=e.a.u,sA=e.a.s,D=e.b.u,sD=e.b.s;
+  A._busy=D._busy=true;
+  moveTo(A,A.side==='ally'?43:57,4);moveTo(D,D.side==='ally'?43:57,4);setPose(A,'ready');setPose(D,'ready');
+  stageSides(A,sA,D,sD);
+  log(`${A.name} (${sA.name}) clashes with ${D.name} (${sD.name}).`);
+  const spA=e.dice[0].speed,spD=e.dice[1].speed;
+  fireUse(A,sA,D,{speed:spA,theirSpeed:spD});fireUse(D,sD,A,{speed:spD,theirSpeed:spA});renderUnits();
+  await sleep(460);
+  let ca=sA.coins,cd=sD.coins,ties=0,round=0;
+  while(ca>0&&cd>0&&ties<4){
+    round++;
+    const ra=rollTotal(A,sA,ca),rd=rollTotal(D,sD,cd);
+    $('#cvs').textContent=`Clash ${round}`;
+    setSide('csA',{total:sA.coins,remaining:ca,flips:ra.flips,val:ra.total});
+    setSide('csB',{total:sD.coins,remaining:cd,flips:rd.flips,val:rd.total});
+    setPose(A,'attack',true);setPose(D,'attack',true);
+    await sleep(700);
+    if(ra.total>rd.total){cd--;setSide('csB',{total:sD.coins,remaining:cd,note:'Coin broken'});setSide('csA',{note:''});setPose(D,'hit',true);setPose(A,'ready')}
+    else if(rd.total>ra.total){ca--;setSide('csA',{total:sA.coins,remaining:ca,note:'Coin broken'});setSide('csB',{note:''});setPose(A,'hit',true);setPose(D,'ready')}
+    else{ties++;setSide('csA',{note:'Tie'});setSide('csB',{note:'Tie'});setPose(A,'ready');setPose(D,'ready')}
+    await sleep(380);
+  }
+  if(ca>0&&cd>0){log('Stalemate. Both skills are spent.');await sleep(300);goHome(A);goHome(D);return}
+  const aWon=ca>0;
+  const W=aWon?A:D,Lo=aWon?D:A,sW=aWon?sA:sD,sL=aWon?sD:sA,left=aWon?ca:cd;
+  const wId=aWon?'csA':'csB',lId=aWon?'csB':'csA';
+  document.getElementById(wId).classList.add('won');document.getElementById(lId).classList.add('lost');
+  changeSP(W,Math.min(6,2+round));changeSP(Lo,-1);
+  pop(W,'Clash won','win');setPose(W,'ready');setPose(Lo,'hit');
+  log(`${W.name} wins the clash in ${round} round${round>1?'s':''}.`);
+  applyTrig('win',W,sW,Lo);applyTrig('lose',Lo,sL,W);
+  fireCS(W,'win');fireCS(Lo,'lose');firePassive(W,'win');firePassive(Lo,'lose');
+  renderUnits();
+  await sleep(300);
+  await hitSequence(W,sW,left,Lo,wId,lId);
+  goHome(A);goHome(D);await sleep(260);
+}
+async function resolveOne(u,s,t,speed=0){
+  u._busy=true;
+  const h=home(t);moveTo(u,h.x+(u.side==='ally'?-10:10),h.b);setPose(u,'ready');
+  stageSides(u,s,t,null);
+  log(`${u.name} uses ${s.name} on ${t.name}, unopposed.`);
+  fireUse(u,s,t,{unopposed:true,speed,theirSpeed:fastest(t)});renderUnits();
+  await sleep(420);
+  await hitSequence(u,s,s.coins,t,'csA','csB');
+  goHome(u);await sleep(260);
+}
+async function resolveGuard(e){
+  const u=e.u,s=e.s;if(!canAct(u))return;
+  u._busy=true;setPose(u,'guard');
+  const r=rollTotal(u,s,s.coins);
+  u.shield+=r.total;
+  $('#hud').innerHTML=`<div class="clash"><div class="cs" id="csA"><div class="cs-name">${esc(u.name)}</div><div class="cs-skill t-guard">${esc(s.name)}</div><div class="cs-coins" data-coins></div><div class="cs-total" data-total></div><div class="cs-note" data-note>Shield raised</div></div><div class="cvs">Guard</div><div class="cs"></div></div>`;
+  setSide('csA',{total:s.coins,remaining:s.coins,flips:r.flips,val:`+${r.total}`});
+  pop(u,`+${r.total} Shield`,'shield');log(`${u.name} braces with ${s.name}: +${r.total} Shield.`);
+  fireUse(u,s,u);renderUnits();
+  await sleep(520);
+  u._busy=false;basePose(u);
+}
+function checkOver(){if(!alive(B.enemies).length)return'win';if(!alive(B.allies).length)return'lose';return null}
+async function executeTurn(){
+  if(!B||B.phase!=='plan')return;
+  B.plans.forEach(p=>{if(p&&p.skill&&p.skill.type!=='guard'&&!(p.target&&p.target.hp>0))p.target=randomAlive(B.enemies)});
+  const engs=computeEngagements();
+  B.engs=engs;B.phase='resolve';B.active=null;renderBattle();
+  const guards=engs.filter(e=>e.kind==='guard');
+  const rest=engs.filter(e=>e.kind!=='guard').sort((x,y)=>y.speed-x.speed||((y.ally!=null)-(x.ally!=null)));
+  for(const e of [...guards,...rest]){
+    if(checkOver())break;
+    if(e.kind==='guard')await resolveGuard(e);
+    else if(e.kind==='clash'){
+      const A=e.a.u,D=e.b.u,aOk=canAct(A),dOk=canAct(D);
+      if(aOk&&dOk)await resolveClash(e);
+      else if(aOk){const t=D.hp>0?D:randomAlive(B.enemies);if(t)await resolveOne(A,e.a.s,t,e.dice[0].speed)}
+      else if(dOk){const t=A.hp>0?A:randomAlive(B.allies);if(t)await resolveOne(D,e.b.s,t,e.dice[1].speed)}
+    }else if(canAct(e.u)){
+      const t=e.t.hp>0?e.t:randomAlive(e.u.side==='ally'?B.enemies:B.allies);
+      if(t)await resolveOne(e.u,e.s,t,e.speed);
+    }
+    e.dice.forEach(d=>d.done=true);renderUnits();
+  }
+  if(!checkOver())await endOfTurn();
+  const o=checkOver();
+  if(o){finishBattle(o==='win');return}
+  B.turn++;startTurn();
+}
+async function endOfTurn(){
+  let any=false;const all=[...B.allies,...B.enemies];
+  for(const u of all){
+    if(u.hp<=0)continue;
+    if(u.st.burn>0){const n=u.st.burn;spendCount(u,'burn');rawDamage(u,n,'Burn','st-burn');any=true}
+    if(u.hp>0&&u.st.tremor>0)spendCount(u,'tremor');
+    if(u.hp>0&&Object.keys(u.cs).some(id=>u.cs[id]>0&&save.statuses[id]&&save.statuses[id].trig==='turnEnd')){fireCS(u,'turnEnd');any=true}
+  }
+  for(const u of all){
+    u.shield=0;
+    for(const k of Object.keys(u.exp)){if(B.turn>=u.exp[k]){u.st[k]=0;delete u.exp[k]}}
+    for(const id in u.cs){const d=save.statuses[id];if(!d)continue;if(d.decay==='endOne')u.cs[id]=Math.max(0,u.cs[id]-1);else if(d.decay==='endAll')u.cs[id]=0}
+    if(u.stag&&u.hp>0&&B.turn>=u.stagUntil){u.stag=false;pop(u,'Recovered','win');log(`${u.name} recovers from stagger.`)}
+  }
+  B.allies.forEach(a=>{if(a.passives.some(p=>p.trig==='turnEnd'||p.trig==='lowhp'))any=true;firePassive(a,'turnEnd');firePassive(a,'lowhp')});
+  renderUnits();
+  if(any){$('#hud').innerHTML='<div class="hud-idle"><span class="eyebrow">End of turn</span><b>Afflictions &amp; passives</b></div>';await sleep(700)}
+}
+function finishBattle(win){
+  const rewards={};let first=false,hours=0;
+  if(win){
+    let base;
+    if(B.night){base=3+save.streak;save.streak++;save.best=Math.max(save.best,save.streak)}
+    else{const st=STAGES[B.stage];first=!save.cleared[st.id];base=first?st.reward:Math.ceil(st.reward/3);save.cleared[st.id]=true}
+    B.allies.forEach(a=>{const n=a.hp>0?base:Math.ceil(base/2);rewards[a.key]=n;save.tokens[a.key]+=n});
+    save.wins++;
+  }else if(B.night){hours=save.streak;save.streak=0}
+  persist();
+  B.over={win,rewards,first,hours};B.phase='over';
+  $('#hud').innerHTML=`<div class="hud-idle"><span class="eyebrow">${win?'All opposition down':'Squad defeated'}</span><b>${win?'Paid':'Failed'}</b></div>`;
+  (win?B.allies:B.enemies).forEach(u=>{if(u.hp>0)setPose(u,'ready')});
+  renderHeader();renderBattle();
+  $('#planner').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function pickSkill(i,k){
+  if(!B||B.phase!=='plan')return;
+  const p=B.plans[i];if(!p)return;const s=p.hand[k];p.skill=s;
+  if(s.type==='guard'){p.target=null;B.active=null}else{B.active=i;if(!p.target||p.target.hp<=0)p.target=null}
+  renderBattle();
+}
+function setTarget(ei){
+  if(!B||B.phase!=='plan')return;
+  const en=B.enemies[ei];if(!en||en.hp<=0)return;
+  if(B.active==null){toast('Tap a skill first, then the enemy.');return}
+  const p=B.plans[B.active];if(p.skill.type==='guard')p.skill=p.hand.find(s=>s.type!=='guard')||p.skill;
+  p.target=en;B.active=null;renderBattle();
+}
+
+
+/* ---------- events ---------- */
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800)}
+function armed(btn,label,ms=3000){if(btn.dataset.armed)return true;btn.dataset.armed='1';const old=btn.textContent;btn.textContent=label;setTimeout(()=>{if(btn.isConnected){delete btn.dataset.armed;btn.textContent=old}},ms);return false}
+function rerenderKeepFocus(id){render();const el=id&&document.getElementById(id);if(el)el.focus()}
+document.addEventListener('click',ev=>{
+  const t=ev.target.closest('[data-act]');if(!t||t.disabled)return;
+  const a=t.dataset.act,d=t.dataset;
+  switch(a){
+    case 'go':if(view!=='battle')go(d.v);break;
+    case 'start':startBattle(+d.stage);break;
+    case 'night':case 'nextnight':startBattle('night');break;
+    case 'field':toggleTeam(d.c);break;
+    case 'forgefor':forge.char=d.c;forge.pending=null;go('forge');break;
+    case 'dressfor':wardrobe.char=d.c;go('wardrobe');break;
+    case 'fchar':forge.char=d.c;forge.pending=forge.pendingCs=forge.pendingP=null;render();break;
+    case 'ftab':forge.tab=d.v;render();break;
+    // skills
+    case 'randname':draft.name=randName();$('#f-name').value=draft.name;updateForgePreview();break;
+    case 'addfx':if(draft.effects.length<4){draft.effects.push(draft.type==='guard'?{trig:'use',eff:'sanity',amt:1}:{trig:'hit',eff:CHARS[forge.char].sig,amt:1});normalizeDraft();renderFxList();updateForgePreview()}break;
+    case 'rmfx':draft.effects.splice(+d.fx,1);renderFxList();updateForgePreview();break;
+    case 'fxamt':{const f=draft.effects[+d.fx];f.amt=clamp(f.amt+(+d.d),1,effDef(f.eff).max);renderFxList();updateForgePreview();const again=document.querySelector(`[data-act="fxamt"][data-fx="${d.fx}"][data-d="${d.d}"]`);if(again&&!again.disabled)again.focus();break}
+    case 'forge':doForge();break;
+    case 'equip':toggleEquip(d.id);break;
+    case 'rework':reworkSkill(d.id);break;
+    case 'dismantle':doDismantle(d.id);break;
+    // unique statuses
+    case 'csrand':csDraft.name=`${pick(ST_NAME_A)} ${pick(ST_NAME_B)}`;$('#f-cs-name').value=csDraft.name;updateCsPreview();break;
+    case 'csglyph':csDraft.glyph=d.v;render();break;
+    case 'cscolor':csDraft.color=d.c;render();break;
+    case 'cscreate':createStatus();break;
+    case 'csdel':deleteStatus(d.id);break;
+    // passives
+    case 'pamt':pDraft.amt=clamp(pDraft.amt+(+d.d),1,P_EFF[pDraft.eff].max);render();break;
+    case 'pcreate':createPassive();break;
+    case 'pequip':togglePassive(d.id);break;
+    case 'pdel':deletePassive(d.id);break;
+    // wardrobe
+    case 'wchar':wardrobe.char=d.c;render();break;
+    case 'wsec':wardrobe.sec=d.v;render();break;
+    case 'wopt':setLook(d.k,d.v);render();break;
+    case 'wsw':setLook(d.k,d.c);render();break;
+    case 'wpose':wardrobe.pose=d.v;{const dl=$('#wdDoll');if(dl){dl.className='doll';void dl.offsetWidth;dl.className='doll pose-'+d.v+(d.v==='idle'?' idle':'')}}document.querySelectorAll('[data-act="wpose"]').forEach(b=>b.classList.toggle('on',b.dataset.v===d.v));break;
+    case 'wrand':randomLook();render();break;
+    case 'wreset':save.looks[wardrobe.char]={...CHARS[wardrobe.char].look};persist();render();toast('Look reset.');break;
+    // battle
+    case 'pick':pickSkill(+d.a,+d.k);break;
+    case 'target':setTarget(+d.e);break;
+    case 'aim':if(B&&B.phase==='plan'&&B.plans[+d.a]){const p=B.plans[+d.a];if(p.skill&&p.skill.type!=='guard'){B.active=B.active===+d.a?null:+d.a;renderBattle()}}break;
+    case 'commence':executeTurn();break;
+    case 'speed':{const m=+d.m;if(m===0)SPEED.skip=true;else{SPEED.mult=m;save.speed=m;persist()}document.querySelectorAll('.speedctl button').forEach(b=>b.classList.toggle('on',+b.dataset.m===SPEED.mult));break}
+    case 'retreat':if(armed(t,'Confirm retreat')&&B&&B.phase==='plan')finishBattle(false);break;
+    case 'leave':B=null;go(d.v||'contracts');break;
+    case 'reset':if(armed(t,'Click again to erase everything')){save=defaultSave();persist();render();toast('Progress reset.')}break;
+  }
+});
+document.addEventListener('keydown',ev=>{
+  const t=ev.target.closest&&ev.target.closest('[role="button"][data-act]');
+  if(t&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();t.click()}
+});
+document.addEventListener('submit',ev=>ev.preventDefault());
+document.addEventListener('input',ev=>{
+  const el=ev.target,id=el.id;
+  if(id==='f-name'){draft.name=el.value;updateForgePreview()}
+  else if(id==='f-base'){draft.base=+el.value;updateForgePreview()}
+  else if(id==='f-coins'){draft.coins=+el.value;renderFxList();updateForgePreview()}
+  else if(id==='f-cp'){draft.coinPow=+el.value;updateForgePreview()}
+  else if(id==='f-cs-name'){csDraft.name=el.value;updateCsPreview()}
+  else if(id==='f-cs-str'){csDraft.str=+el.value;updateCsPreview()}
+  else if(id==='f-cs-color'){csDraft.color=el.value;updateCsPreview()}
+  else if(id==='f-p-name'){pDraft.name=el.value;updatePPreview()}
+  else if(el.dataset&&el.dataset.wk){setLook(el.dataset.wk,el.value);updateWardrobePreview()}
+});
+document.addEventListener('change',ev=>{
+  const el=ev.target;
+  if(el.name==='f-type'){draft.type=el.value;normalizeDraft();$('#typeHelp').textContent=TYPE_HELP[draft.type];renderFxList();updateForgePreview()}
+  else if(el.dataset&&el.dataset.fx!=null&&el.dataset.k){const i=+el.dataset.fx;draft.effects[i][el.dataset.k]=el.value;normalizeDraft();renderFxList();updateForgePreview();const again=document.getElementById(el.id);if(again)again.focus()}
+  else if(el.name==='f-cs-pol'){csDraft.pol=el.value;normalizeCS();render()}
+  else if(el.id==='f-cs-trig'){csDraft.trig=el.value;normalizeCS();rerenderKeepFocus(el.id)}
+  else if(el.id==='f-cs-eff'){csDraft.eff=el.value;normalizeCS();rerenderKeepFocus(el.id)}
+  else if(el.id==='f-cs-decay'){csDraft.decay=el.value;rerenderKeepFocus(el.id)}
+  else if(el.id==='f-cs-color'){render()}
+  else if(el.id==='f-p-trig'){pDraft.trig=el.value;normalizeP();rerenderKeepFocus(el.id)}
+  else if(el.id==='f-p-eff'){pDraft.eff=el.value;normalizeP();rerenderKeepFocus(el.id)}
+  else if(el.id==='f-p-status'){pDraft.status=el.value;rerenderKeepFocus(el.id)}
+  else if(el.dataset&&el.dataset.wk){render()}
+});
+
+/* ---------- boot ---------- */
+function boot(data){if(data&&data.save)save=data.save;render()}
+window.claude?.hot?.snapshot?.(()=>({save}));
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});
+
+</script>
+
+</body></html>
